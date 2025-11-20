@@ -37,16 +37,20 @@ void generate_random_vec3(vec3* v, float min = -5.0f, float max = 5.0f) {
 	v->z = randomFloat(min, max);
 }
 
-void random_invertable_mat3(mat3* m, float min = -5.0f, float max = 5.0f) {
-	vec3 col1; 
-	vec3 col2; 
-	vec3 col3; 
+void generate_random_mat3(mat3* m, float min = -5.0f, float max = 5.0f) {
+	vec3 col1;
+	vec3 col2;
+	vec3 col3;
 
+	generate_random_vec3(&col3, min, max);
+	generate_random_vec3(&col2, min, max);
+	generate_random_vec3(&col1, min, max);
+	*m = mat3(col1, col2, col3);
+}
+
+void random_invertable_mat3(mat3* m, float min = -5.0f, float max = 5.0f) {
 	do {
-		generate_random_vec3(&col3, min, max);
-		generate_random_vec3(&col2, min, max);
-		generate_random_vec3(&col1, min, max);
-		*m = mat3(col1, col2, col3);
+		generate_random_mat3(m, min, max);
 	} while (determinant(*m) == 0);
 }
 
@@ -56,18 +60,10 @@ void create_coordinate_frame(vec3 view, vec3 up, Coordinate_frame* frame) {
 	frame->u = normalize(cross(frame->v, frame->w));
 }
 
-bool matrix_inverse_distributive_property(mat3 m1, mat3 m2) {
-	mat3 left = inverse(m1 * m2);
-	mat3 right = inverse(m2) * inverse(m1);
-
-	std::cout << "Inverse distributive property.\n" 
-			<< "Left side result (inv(m1 * m2)) = " 
-			<< to_string(left) << "\nRight side result (inv(m2) * inv(m1)) = " 
-			<< to_string(right) << std::endl;
-
+bool compare_matrix(mat3 m1, mat3 m2) {
 	for (int i = 0; i < 2; i++) {
 		for (int j = 0; j < 2; j++) {
-			if (epsilonNotEqual(left[i][j], right[i][j], THRESHOLD)) {
+			if (epsilonNotEqual(m1[i][j], m1[i][j], THRESHOLD)) {
 				return false;
 			}
 		}
@@ -75,12 +71,28 @@ bool matrix_inverse_distributive_property(mat3 m1, mat3 m2) {
 	return true;
 }
 
-vec3 rodrigues_rotation_formula(vec3 axis, vec3 vector, float rads) {
+bool matrix_inverse_distributive_property(mat3 m1, mat3 m2) {
+	mat3 left = inverse(m1 * m2);
+	mat3 right = inverse(m2) * inverse(m1);
+
+	std::cout << "Inverse distributive property.\n"
+		<< "Left side result (inv(m1 * m2)) = "
+		<< to_string(left) << "\nRight side result (inv(m2) * inv(m1)) = "
+		<< to_string(right) << std::endl;
+
+	return compare_matrix(left, right);
+}
+
+vec3 rodrigues_vector_rotation_formula(vec3 axis, vec3 vector, float rads) {
 	vec3 axis_norm = normalize(axis);
 
 	return vector * cos(rads) +
 		(cross(axis_norm, vector)) * sin(rads) +
 		axis_norm * (dot(axis_norm, vector)) * (1 - cos(rads));
+}
+
+mat3 rodrigues_matrix_rotation_formula(mat3 axis, float rads) {
+	return mat3(1) + sin(rads) * axis + (1 - cos(rads)) * axis * axis;
 }
 
 void qtest_triple_product() {
@@ -108,7 +120,7 @@ void qtest_rodrigues_vector() {
 
 	vec3 a_norm1 = normalize(a1);
 
-	vec3 rodrigues1 = rodrigues_rotation_formula(a1, v1, angle1);
+	vec3 rodrigues1 = rodrigues_vector_rotation_formula(a1, v1, angle1);
 	assert(all(epsilonEqual(rodrigues1, expe1, THRESHOLD)));
 	std::cout << "Rodrigues case 1 result: " << to_string(rodrigues1) << "\nExpected: " << to_string(expe1) << std::endl;
 
@@ -121,7 +133,7 @@ void qtest_rodrigues_vector() {
 
 	vec3 a_norm2 = normalize(a2);
 
-	vec3 rodrigues2 = rodrigues_rotation_formula(a2, v2, angle2);
+	vec3 rodrigues2 = rodrigues_vector_rotation_formula(a2, v2, angle2);
 	assert(all(epsilonEqual(rodrigues2, expe2, THRESHOLD)));
 	std::cout << "Rodrigues case 2 result: " << to_string(rodrigues2) << "\nExpected: " << to_string(expe2) << std::endl;
 
@@ -135,7 +147,7 @@ void qtest_rodrigues_vector() {
 
 	vec3 a_norm3 = normalize(a3);
 
-	vec3 rodrigues3 = rodrigues_rotation_formula(a3, v3, angle3);
+	vec3 rodrigues3 = rodrigues_vector_rotation_formula(a3, v3, angle3);
 	assert(all(epsilonEqual(rodrigues3, expe3, THRESHOLD)));
 	std::cout << "Rodrigues case 3 result: " << to_string(rodrigues3) << "\nExpected: " << to_string(expe3) << std::endl;
 }
@@ -150,10 +162,10 @@ void qtest_coordinate_frame() {
 	assert(epsilonEqual(degrees(angle(frame1.v, frame1.u)), 90.0f, THRESHOLD));
 	assert(epsilonEqual(degrees(angle(frame1.v, frame1.w)), 90.0f, THRESHOLD));
 	assert(epsilonEqual(degrees(angle(frame1.u, frame1.w)), 90.0f, THRESHOLD));
-	std::cout << "Coordinate Frame 1 : \nu = " 
-				<< to_string(frame1.u) << "\nv = " 
-				<< to_string(frame1.v) << "\nw = " 
-				<< to_string(frame1.w) << std::endl;
+	std::cout << "Coordinate Frame 1 : \nu = "
+		<< to_string(frame1.u) << "\nv = "
+		<< to_string(frame1.v) << "\nw = "
+		<< to_string(frame1.w) << std::endl;
 
 
 
@@ -184,6 +196,61 @@ void qtest_coordinate_frame() {
 		<< to_string(frame3.w) << std::endl;
 }
 
+void qtest_rodrigues_matrix_rotation() {
+	//90º rotatation though x,y,z sequencially in all cases. Just to clarify
+	float xaxis[9] = { 0, 0, 0, 0, 0, -1, 0, 1, 0 }, yaxis[9] = { 0,0,1,0,0,0,-1,0,0 }, zaxis[9] = { 0,-1,0,1,0,0,0,0,0 };
+	mat3 matx = make_mat3(xaxis), maty = make_mat3(yaxis), matz = make_mat3(zaxis);
+
+	//values to be used as the matrix to be rotated
+	float xmat[9] = { 1,0,0,0,0,0,0,0,0 }, ymat[9] = { 0,0,0,0,1,0,0,0,0 }, zmat[9] = { 1,0,0,0,0,0,0,0,0 };
+	mat3 rotx = make_mat3(xmat), roty = make_mat3(ymat), rotz = make_mat3(zmat);
+
+	// xyz order means negative,otherwise it's positive. expected axis is the one that wasn't present yet
+	float expxy[9] = { 0,0,0,0,0,0,0,0,-1 }, expxz[9] = { 0,0,0,0,1,0,0,0,0 }, expyz[9] = { -1,0,0,0,0,0,0,0,0 },
+		expyx[9] = { 0,0,0,0,0,0,0,0,1 }, expzx[9] = { 0,0,0,0,-1,0,0,0,0 }, expzy[9] = { 1,0,0,0,0,0,0,0,0 };
+	mat3 expXY = make_mat3(expxy), expXZ = make_mat3(expxz), expYZ = make_mat3(expyz),
+		expYX = make_mat3(expyx), expZX = make_mat3(expzx), expZY = make_mat3(expzy);
+
+	const float angle = radians(90.f);
+
+	mat3 rodriguesX = rodrigues_matrix_rotation_formula(matx, angle),
+		rodriguesY = rodrigues_matrix_rotation_formula(maty, angle),
+		rodriguesZ = rodrigues_matrix_rotation_formula(matz, angle);
+
+	assert(compare_matrix(rotx * rodriguesX, expXY));
+	std::cout << "Rodrigues case XY result: " << to_string(rotx * rodriguesY) << "\nExpected: " << to_string(expXY) << std::endl;
+	assert(compare_matrix(rotx * rodriguesZ, expXZ));
+	std::cout << "Rodrigues case XZ result: " << to_string(rotx * rodriguesZ) << "\nExpected: " << to_string(expXZ) << std::endl;
+	assert(compare_matrix(roty * rodriguesZ, expYZ));
+	std::cout << "Rodrigues case YZ result: " << to_string(roty * rodriguesZ) << "\nExpected: " << to_string(expYZ) << std::endl;
+	assert(compare_matrix(roty * rodriguesX, expYX));
+	std::cout << "Rodrigues case YX result: " << to_string(roty * rodriguesX) << "\nExpected: " << to_string(expYX) << std::endl;
+	assert(compare_matrix(rotz * rodriguesX, expZX));
+	std::cout << "Rodrigues case ZX result: " << to_string(rotz * rodriguesX) << "\nExpected: " << to_string(expZX) << std::endl;
+	assert(compare_matrix(rotz * rodriguesY, expZY));
+	std::cout << "Rodrigues case ZY result: " << to_string(rotz * rodriguesY) << "\nExpected: " << to_string(expZY) << std::endl;
+}
+
+void qtest_matrix_transpose_property() {
+	mat3 m1, m2;
+	generate_random_mat3(&m1, -5.0f, 5.0f);
+	generate_random_mat3(&m2, -5.0f, 5.0f);
+
+	mat3 left_side = transpose(m1 * m2);
+	mat3 right_side = transpose(m2) * transpose(m1);
+
+	std::cout << "Transposition property.\n"
+		<< "Left side result ( (A*B)^T ) = "
+		<< to_string(left_side) << "\nRight side result ( B^T * A^T ) = "
+		<< to_string(right_side) << std::endl;
+
+	assert(compare_matrix(left_side, right_side));
+
+	std::cout << "Matrix Transposition Property Success, matrixes used were: \nm1 = "
+		<< to_string(m1) << "\nm2 = "
+		<< to_string(m2) << std::endl;
+}
+
 void qtest_matrix_inverse_distributive_property() {
 	mat3 m1;
 	mat3 m2;
@@ -193,14 +260,14 @@ void qtest_matrix_inverse_distributive_property() {
 	bool result = matrix_inverse_distributive_property(m1, m2);
 
 	assert(result);
-	std::cout << "Matrix Inverse Distributive Property Success, matrixes used were: \nm1 = " 
-			  << to_string(m1) << "\nm2 = " 
-			  << to_string(m2) << std::endl;
+	std::cout << "Matrix Inverse Distributive Property Success, matrixes used were: \nm1 = "
+		<< to_string(m1) << "\nm2 = "
+		<< to_string(m2) << std::endl;
 }
 
 int main() {
 	srand(time(0));
-	const auto tests = { qtest_triple_product,  qtest_rodrigues_vector, qtest_coordinate_frame, qtest_matrix_inverse_distributive_property };
+	const auto tests = { qtest_triple_product, qtest_coordinate_frame, qtest_rodrigues_vector, qtest_rodrigues_matrix_rotation ,qtest_matrix_transpose_property ,qtest_matrix_inverse_distributive_property };
 	for (const auto& test : tests) {
 		test();
 		std::cout << std::endl;
