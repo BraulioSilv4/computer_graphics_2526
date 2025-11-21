@@ -15,7 +15,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ComputerGraphics.cpp">
+    <ClCompile Include="..\..\..\..\Downloads\02-hello-2d-world-2025\02-hello-2d-world-2025\src\hello-2d-world.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\mgl\mglApp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\mgl\mglError.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\mgl\mglShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
