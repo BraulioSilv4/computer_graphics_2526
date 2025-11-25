@@ -133,10 +133,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\Downloads\02-hello-2d-world-2025\02-hello-2d-world-2025\src\hello-2d-world.cpp" />
     <ClCompile Include="..\libraries\mgl\mglApp.cpp" />
     <ClCompile Include="..\libraries\mgl\mglError.cpp" />
     <ClCompile Include="..\libraries\mgl\mglShader.cpp" />
+    <ClCompile Include="ShapeRenderer.cpp" />
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ShapeRenderer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
