@@ -8,8 +8,9 @@ layout(location = 1) in vec4 inColor;
 out vec4 exColor;
 
 uniform mat4 Matrix;
+uniform vec4 dynamicColor;
 
 void main(void) {
     gl_Position = Matrix * inPosition;
-    exColor = inColor;
+    exColor = dynamicColor;
 }

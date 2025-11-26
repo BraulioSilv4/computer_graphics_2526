@@ -35,5 +35,16 @@
     <ClInclude Include="ShapeRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Color.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="clip-fs.glsl">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="clip-vs.glsl">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

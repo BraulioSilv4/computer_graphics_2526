@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Color.h"
 #include <mgl.hpp>
 #include <GLFW/glfw3.h>
 #include <glm/fwd.hpp>
@@ -13,30 +14,42 @@ typedef struct {
 
 class ShapeRenderer {
 public:
-	void drawTriangle(float scale, float rotation, glm::vec3 translate, GLint MatrixID);
-	void drawSquare();
-	void drawParallelogram();
+	void drawTriangle(
+		glm::vec2 scale,
+		float rotation, 
+		glm::vec3 translate, 
+		glm::vec4 color
+	);
+	
+	void drawSquare(
+		glm::vec2 scale,
+		float rotation, 
+		glm::vec3 translate,
+		glm::vec4 color
+	);
+	
+	void drawParallelogram(
+		glm::vec2 scale,
+		float rotation, 
+		glm::vec3 translate,
+		glm::vec4 color
+	);
 
-	ShapeRenderer();
+	ShapeRenderer(GLint MatrixID, GLint ColorID) {
+		this->MatrixID = MatrixID;
+		this->ColorID = ColorID;
+	}
+
 	~ShapeRenderer();
 
-private:
-	static constexpr Vertex TriangleVertices[3] = {
-		{{0.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}},
-		{{1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}},
-		{{0.0f, 1.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}} };
+private:	
+	GLint MatrixID;
+	GLint ColorID;
 
-	static constexpr Vertex SquareVertices[4] = {
-		{{0.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}},
-		{{1.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}},
-		{{1.0f, 1.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}},
-		{{0.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 0.0f, 1.0f}} };
-
-	static constexpr Vertex ParallelogramVertices[4] = {
-		{{0.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}},
-		{{0.0f, 1.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}},
-		{{1.0f, 1.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}},
-		{{1.0f, 2.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 0.0f, 1.0f}} };
-
+	glm::mat4 applyTransform(
+		glm::vec2 scale,
+		float rotation, 
+		glm::vec3 translate
+	);
 };
 

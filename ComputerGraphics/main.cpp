@@ -37,14 +37,14 @@ public:
 	void windowSizeCallback(GLFWwindow* win, int width, int height) override;
 
 private:
-	ShapeRenderer shapeRenderer;	// Basic shape renderer
 	const GLuint POSITION = 0, COLOR = 1;
 	GLuint VaoId, VboId[2];
 	std::unique_ptr<mgl::ShaderProgram> Shaders = nullptr;
 	GLint MatrixId;
+	GLint UniformColorId;
 
 	void createShaderProgram();
-	void createBufferObjects();
+	void createBufferObjects(/*Vertex* vertices, GLubyte* indices*/);
 	void destroyBufferObjects();
 	void drawScene();
 };
@@ -60,45 +60,54 @@ void MyApp::createShaderProgram() {
 	Shaders->addAttribute(mgl::POSITION_ATTRIBUTE, POSITION);
 	Shaders->addAttribute(mgl::COLOR_ATTRIBUTE, COLOR);
 	Shaders->addUniform("Matrix");
+	Shaders->addUniform("dynamicColor");
 
 	Shaders->create();
 
 	MatrixId = Shaders->Uniforms["Matrix"].index;
+	UniformColorId = Shaders->Uniforms["dynamicColor"].index;
 }
 
 //////////////////////////////////////////////////////////////////// VAOs & VBOs
 
 
 const Vertex Vertices[] = {
-	{{0.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},
-	{{1.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},
-	{{0.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}} };
+	{{0.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},	// 0
+	{{1.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},	// 1
+	{{0.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},	// 2
+	{{1.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},	// 3
+	{{1.0f, 2.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}} }; // 4
 
-const GLubyte Indices[] = { 0, 1, 2 };
+const GLubyte Indices[] = { 
+	0, 3, 2,		// Triangle
+	0, 1, 2, 3,		// Square
+	0, 3, 2, 4		// Parallelogram
+};	
 
-void MyApp::createBufferObjects() {
+void MyApp::createBufferObjects(/*Vertex *vertices, GLubyte *indices*/) {
 	glGenVertexArrays(1, &VaoId);
 	glBindVertexArray(VaoId);
-	{
-		glGenBuffers(2, VboId);
+	
+	glGenBuffers(2, VboId);
 
-		glBindBuffer(GL_ARRAY_BUFFER, VboId[0]);
-		{
-			glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
-			glEnableVertexAttribArray(POSITION);
-			glVertexAttribPointer(POSITION, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-				reinterpret_cast<GLvoid*>(0));
-			glEnableVertexAttribArray(COLOR);
-			glVertexAttribPointer(
-				COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-				reinterpret_cast<GLvoid*>(sizeof(Vertices[0].XYZW)));
-		}
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VboId[1]);
-		{
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices,
-				GL_STATIC_DRAW);
-		}
-	}
+	glBindBuffer(GL_ARRAY_BUFFER, VboId[0]);
+		
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(POSITION);
+	glVertexAttribPointer(POSITION, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+		reinterpret_cast<GLvoid*>(0));
+
+	glEnableVertexAttribArray(COLOR);
+	glVertexAttribPointer(
+		COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+		reinterpret_cast<GLvoid*>(sizeof(Vertices[0].XYZW)));
+		
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VboId[1]);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices,
+		GL_STATIC_DRAW);
+		
+	
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -120,12 +129,26 @@ const glm::mat4 M =
 glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, -1.0f, 0.0f));
 
 void MyApp::drawScene() {
+	ShapeRenderer shapeRenderer(MatrixId, UniformColorId);
+
 	// Drawing directly in clip space
 
 	glBindVertexArray(VaoId);
 	Shaders->bind();
 
-	shapeRenderer.drawTriangle(0.5f, glm::radians(0.0f), glm::vec3(-0.0f, -1.0f, 0.0f), MatrixId);
+	shapeRenderer.drawSquare(glm::vec2(0.25f, 0.25f), glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 0.0f), Color::Green);
+	
+	shapeRenderer.drawParallelogram(glm::vec2(0.25f, 0.25f), glm::radians(0.0f), glm::vec3(0.25f, 0.f, 0.0f), Color::Yellow);
+
+	shapeRenderer.drawTriangle(glm::vec2(0.25f, 0.25f), glm::radians(90.0f), glm::vec3(0.75f, 0.4f, 0.0f), Color::Magenta);
+
+	shapeRenderer.drawTriangle(glm::vec2(0.5f, 0.5f), glm::radians(270.0f), glm::vec3(-0.5f, 0.25f, 0.0f), Color::Magenta);
+
+	shapeRenderer.drawTriangle(glm::vec2(0.25f, 0.25f), glm::radians(180.0f), glm::vec3(0.0f, 0.5f, 0.0f), Color::Cyan);
+
+	shapeRenderer.drawTriangle(glm::vec2(0.5f, 0.5f), glm::radians(315.0f), glm::vec3((-sqrt(0.5) -0.25), 0.0f, 0.0f), Color::Blue);
+
+	shapeRenderer.drawTriangle(glm::vec2(0.25f, 0.25f), glm::radians(135.0f), glm::vec3(-0.25, 0.0f, 0.0f), Color::Orange);
 
 	Shaders->unbind();
 	glBindVertexArray(0);
@@ -134,7 +157,7 @@ void MyApp::drawScene() {
 ////////////////////////////////////////////////////////////////////// CALLBACKS
 
 void MyApp::initCallback(GLFWwindow* win) {
-	createBufferObjects();
+	createBufferObjects(/*(Vertex *)Vertices, (GLubyte*)Indices*/);
 	createShaderProgram();
 }
 
