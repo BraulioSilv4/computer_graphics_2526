@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Color.h"
 #include <mgl.hpp>
 #include <GLFW/glfw3.h>
 #include <glm/fwd.hpp>
@@ -14,33 +13,30 @@ typedef struct {
 
 class ShapeRenderer {
 public:
-	void drawTriangle(
-		glm::vec2 scale,
-		float rotation, 
-		glm::vec3 translate, 
-		glm::vec4 color
-	);
-	
-	void drawSquare(
+
+	virtual void draw(
 		glm::vec2 scale,
 		float rotation, 
 		glm::vec3 translate,
 		glm::vec4 color
-	);
-	
-	void drawParallelogram(
-		glm::vec2 scale,
-		float rotation, 
-		glm::vec3 translate,
-		glm::vec4 color
-	);
+	) {};
 
 	ShapeRenderer(GLint MatrixID, GLint ColorID) {
 		this->MatrixID = MatrixID;
 		this->ColorID = ColorID;
 	}
 
-	~ShapeRenderer();
+	~ShapeRenderer() {};
+
+protected:
+	void draw_internal(
+		glm::vec2 scale,
+		float rotation, 
+		glm::vec3 translate,
+		glm::vec4 color,
+		GLenum mode,
+		GLbyte offset
+	);
 
 private:	
 	GLint MatrixID;

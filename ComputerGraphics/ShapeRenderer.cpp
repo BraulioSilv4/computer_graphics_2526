@@ -1,11 +1,5 @@
 #include "ShapeRenderer.h"
 
-//ShapeRenderer::ShapeRenderer(GLint MatrixID, GLint ColorID) {
-//	this->MatrixID = MatrixID;
-//	this->ColorID = ColorID;
-//}
-ShapeRenderer::~ShapeRenderer() {}
-
 glm::mat4 ShapeRenderer::applyTransform(
 	glm::vec2 scale,
 	float rotation, 
@@ -24,37 +18,17 @@ glm::mat4 ShapeRenderer::applyTransform(
 	return R2 * T * R * S;
 }
 
-void ShapeRenderer::drawTriangle(
+
+void ShapeRenderer::draw_internal(
 	glm::vec2 scale,
 	float rotation,
 	glm::vec3 translate,
-	glm::vec4 color
+	glm::vec4 color,
+	GLenum mode,
+	GLbyte offset
 ) {
 	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, glm::value_ptr(applyTransform(scale, rotation,translate)));
 	glUniform4fv(ColorID, 1, glm::value_ptr(color));
-	glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE,
-		reinterpret_cast<GLvoid*>(0));
-	
-}
-
-void ShapeRenderer::drawSquare(
-	glm::vec2 scale,
-	float rotation,
-	glm::vec3 translate,
-	glm::vec4 color
-) {
-	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, glm::value_ptr(applyTransform(scale ,rotation, translate)));
-	glUniform4fv(ColorID, 1, glm::value_ptr(color));
-	glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_BYTE, reinterpret_cast<GLvoid*>(3));
-}
-
-void ShapeRenderer::drawParallelogram(
-	glm::vec2 scale,
-	float rotation,
-	glm::vec3 translate,
-	glm::vec4 color
-) {
-	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, glm::value_ptr(applyTransform(scale, rotation,translate)));
-	glUniform4fv(ColorID, 1, glm::value_ptr(color));
-	glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_BYTE, reinterpret_cast<GLvoid*>(7));
+	glDrawElements(mode, mode == GL_TRIANGLE_STRIP ? 4 : 3, GL_UNSIGNED_BYTE,
+		reinterpret_cast<GLvoid*>(offset));
 }

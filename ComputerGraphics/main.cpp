@@ -24,6 +24,14 @@
 
 #include "ShapeRenderer.h"
 
+/* Base Shapes Include and Color */
+#include "Color.h"
+#include "SquareRenderer.h"
+#include "TriangleRenderer.h"
+#include "ParellelogramRenderer.h"
+#include <iostream>
+
+
 ////////////////////////////////////////////////////////////////////////// MYAPP
 
 class MyApp : public mgl::App {
@@ -84,7 +92,7 @@ const GLubyte Indices[] = {
 	0, 3, 2, 4		// Parallelogram
 };	
 
-void MyApp::createBufferObjects(/*Vertex *vertices, GLubyte *indices*/) {
+void MyApp::createBufferObjects() {
 	glGenVertexArrays(1, &VaoId);
 	glBindVertexArray(VaoId);
 	
@@ -129,26 +137,27 @@ const glm::mat4 M =
 glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, -1.0f, 0.0f));
 
 void MyApp::drawScene() {
-	ShapeRenderer shapeRenderer(MatrixId, UniformColorId);
-
-	// Drawing directly in clip space
+	ShapeRenderer* triangleRenderer = new TriangleRenderer(MatrixId, UniformColorId);
+	ShapeRenderer* squareRenderer = new SquareRenderer(MatrixId, UniformColorId);
+	ShapeRenderer* parallelogramRenderer = new ParellelogramRenderer(MatrixId, UniformColorId);
 
 	glBindVertexArray(VaoId);
 	Shaders->bind();
 
-	shapeRenderer.drawSquare(glm::vec2(0.25f, 0.25f), glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 0.0f), Color::Green);
+
+	squareRenderer->draw(glm::vec2(0.25f, 0.25f), glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 0.0f), Color::Green);
 	
-	shapeRenderer.drawParallelogram(glm::vec2(0.25f, 0.25f), glm::radians(0.0f), glm::vec3(0.25f, 0.f, 0.0f), Color::Yellow);
+	parallelogramRenderer->draw(glm::vec2(0.25f, 0.25f), glm::radians(0.0f), glm::vec3(0.25f, 0.f, 0.0f), Color::Yellow);
 
-	shapeRenderer.drawTriangle(glm::vec2(0.25f, 0.25f), glm::radians(90.0f), glm::vec3(0.75f, 0.4f, 0.0f), Color::Magenta);
+	triangleRenderer->draw(glm::vec2(0.25f, 0.25f), glm::radians(90.0f), glm::vec3(0.75f, 0.4f, 0.0f), Color::Purple);
 
-	shapeRenderer.drawTriangle(glm::vec2(0.5f, 0.5f), glm::radians(270.0f), glm::vec3(-0.5f, 0.25f, 0.0f), Color::Magenta);
+	triangleRenderer->draw(glm::vec2(0.5f, 0.5f), glm::radians(270.0f), glm::vec3(-0.5f, 0.25f, 0.0f), Color::Magenta);
 
-	shapeRenderer.drawTriangle(glm::vec2(0.25f, 0.25f), glm::radians(180.0f), glm::vec3(0.0f, 0.5f, 0.0f), Color::Cyan);
+	triangleRenderer->draw(glm::vec2(0.25f, 0.25f), glm::radians(180.0f), glm::vec3(0.0f, 0.5f, 0.0f), Color::Cyan);
 
-	shapeRenderer.drawTriangle(glm::vec2(0.5f, 0.5f), glm::radians(315.0f), glm::vec3((-sqrt(0.5) -0.25), 0.0f, 0.0f), Color::Blue);
+	triangleRenderer->draw(glm::vec2(0.5f, 0.5f), glm::radians(315.0f), glm::vec3((-sqrt(0.5f) - 0.25f), 0.0f, 0.0f), Color::Blue);
 
-	shapeRenderer.drawTriangle(glm::vec2(0.25f, 0.25f), glm::radians(135.0f), glm::vec3(-0.25, 0.0f, 0.0f), Color::Orange);
+	triangleRenderer->draw(glm::vec2(0.25f, 0.25f), glm::radians(135.0f), glm::vec3(-0.25, 0.0f, 0.0f), Color::Orange);
 
 	Shaders->unbind();
 	glBindVertexArray(0);
@@ -157,7 +166,7 @@ void MyApp::drawScene() {
 ////////////////////////////////////////////////////////////////////// CALLBACKS
 
 void MyApp::initCallback(GLFWwindow* win) {
-	createBufferObjects(/*(Vertex *)Vertices, (GLubyte*)Indices*/);
+	createBufferObjects();
 	createShaderProgram();
 }
 

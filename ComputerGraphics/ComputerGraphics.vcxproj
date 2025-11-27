@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -136,12 +136,18 @@
     <ClCompile Include="..\libraries\mgl\mglApp.cpp" />
     <ClCompile Include="..\libraries\mgl\mglError.cpp" />
     <ClCompile Include="..\libraries\mgl\mglShader.cpp" />
+    <ClCompile Include="ParellelogramRenderer.cpp" />
     <ClCompile Include="ShapeRenderer.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="SquareRenderer.cpp" />
+    <ClCompile Include="TriangleRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Color.h" />
+    <ClInclude Include="ParellelogramRenderer.h" />
     <ClInclude Include="ShapeRenderer.h" />
+    <ClInclude Include="SquareRenderer.h" />
+    <ClInclude Include="TriangleRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="clip-fs.glsl" />
