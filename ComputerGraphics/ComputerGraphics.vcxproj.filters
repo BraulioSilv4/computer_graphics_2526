@@ -24,44 +24,50 @@
     <ClCompile Include="..\libraries\mgl\mglShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ShapeRenderer.cpp">
+    <ClCompile Include="..\libraries\mgl\mglCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="..\libraries\mgl\mglMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ParellelogramRenderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SquareRenderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TriangleRenderer.cpp">
+    <ClCompile Include="mesh-loader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ShapeRenderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Color.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SquareRenderer.h">
+    <ClInclude Include="..\libraries\mgl\mgl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TriangleRenderer.h">
+    <ClInclude Include="..\libraries\mgl\mglApp.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParellelogramRenderer.h">
+    <ClInclude Include="..\libraries\mgl\mglConventions.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\mgl\mglError.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\mgl\mglShader.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\mgl\mglCamera.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\mgl\mglMesh.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\mgl\mglScenegraph.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="clip-fs.glsl">
+    <None Include="cube-fs.glsl">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="clip-vs.glsl">
+    <None Include="cube-vs.glsl">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>

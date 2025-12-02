@@ -10,6 +10,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <vector>
 
 namespace mgl {
@@ -23,10 +24,9 @@ const std::string ShaderProgram::read(const std::string &filename) {
     std::cerr << "[ERROR] Failed to open shader file: " << filename;
     throw std::runtime_error("Failed to open shader file.");
   }
-  while (std::getline(ifile, line)) {
-    shader_string += line + "\n";
-  }
-  return shader_string;
+  std::stringstream buffer;
+  buffer << ifile.rdbuf();
+  return buffer.str();
 }
 
 void ShaderProgram::checkCompilation(const GLuint shader_id,
@@ -68,7 +68,7 @@ void ShaderProgram::addShader(const GLenum shader_type,
   const GLuint shader_id = glCreateShader(shader_type);
   const std::string scode = read(filename);
   const GLchar *code = scode.c_str();
-  glShaderSource(shader_id, 1, &code, 0);
+  glShaderSource(shader_id, 1, &code, nullptr);
   glCompileShader(shader_id);
   checkCompilation(shader_id, filename);
   glAttachShader(ProgramId, shader_id);

@@ -102,13 +102,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)libraries\glm;$(SolutionDir)libraries\glew\include;$(SolutionDir)libraries\glfw\include;$(SolutionDir)libraries\mgl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)libraries\assimp\include;$(SolutionDir)libraries\glm;$(SolutionDir)libraries\glew\include;$(SolutionDir)libraries\glfw\include;$(SolutionDir)libraries\mgl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)libraries\glew\lib\Release\x64;$(SolutionDir)libraries\glfw\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glew32.lib;glfw3dll.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)libraries\assimp\lib;$(SolutionDir)libraries\glew\lib\Release\x64;$(SolutionDir)libraries\glfw\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glew32.lib;glfw3dll.lib;opengl32.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -134,24 +134,26 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\libraries\mgl\mglApp.cpp" />
+    <ClCompile Include="..\libraries\mgl\mglCamera.cpp" />
     <ClCompile Include="..\libraries\mgl\mglError.cpp" />
+    <ClCompile Include="..\libraries\mgl\mglMesh.cpp" />
     <ClCompile Include="..\libraries\mgl\mglShader.cpp" />
-    <ClCompile Include="ParellelogramRenderer.cpp" />
-    <ClCompile Include="ShapeRenderer.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="SquareRenderer.cpp" />
-    <ClCompile Include="TriangleRenderer.cpp" />
+    <ClCompile Include="mesh-loader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\libraries\mgl\mgl.hpp" />
+    <ClInclude Include="..\libraries\mgl\mglApp.hpp" />
+    <ClInclude Include="..\libraries\mgl\mglCamera.hpp" />
+    <ClInclude Include="..\libraries\mgl\mglConventions.hpp" />
+    <ClInclude Include="..\libraries\mgl\mglError.hpp" />
+    <ClInclude Include="..\libraries\mgl\mglMesh.hpp" />
+    <ClInclude Include="..\libraries\mgl\mglScenegraph.hpp" />
+    <ClInclude Include="..\libraries\mgl\mglShader.hpp" />
     <ClInclude Include="Color.h" />
-    <ClInclude Include="ParellelogramRenderer.h" />
-    <ClInclude Include="ShapeRenderer.h" />
-    <ClInclude Include="SquareRenderer.h" />
-    <ClInclude Include="TriangleRenderer.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="clip-fs.glsl" />
-    <None Include="clip-vs.glsl" />
+    <None Include="cube-fs.glsl" />
+    <None Include="cube-vs.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
