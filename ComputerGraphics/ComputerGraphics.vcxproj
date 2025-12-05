@@ -139,6 +139,7 @@
     <ClCompile Include="..\libraries\mgl\mglMesh.cpp" />
     <ClCompile Include="..\libraries\mgl\mglShader.cpp" />
     <ClCompile Include="mesh-loader.cpp" />
+    <ClCompile Include="mglSceneNode.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\libraries\mgl\mgl.hpp" />
@@ -150,6 +151,7 @@
     <ClInclude Include="..\libraries\mgl\mglScenegraph.hpp" />
     <ClInclude Include="..\libraries\mgl\mglShader.hpp" />
     <ClInclude Include="Color.h" />
+    <ClInclude Include="mglSceneNode.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cube-fs.glsl" />

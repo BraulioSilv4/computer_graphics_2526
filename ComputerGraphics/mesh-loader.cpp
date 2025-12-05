@@ -10,11 +10,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "../mgl/mgl.hpp"
-#include <filesystem>
+
 #include <iostream>
-#include <filesystem>
-
-
+#include <vector>
 
 ////////////////////////////////////////////////////////////////////////// MYAPP
 
@@ -29,7 +27,7 @@ private:
   mgl::ShaderProgram *Shaders = nullptr;
   mgl::Camera *Camera = nullptr;
   GLint ModelMatrixId;
-  mgl::Mesh *Mesh = nullptr;
+  std::vector<mgl::Mesh*> Meshes;
 
   void createMeshes();
   void createShaderPrograms();
@@ -40,27 +38,25 @@ private:
 ///////////////////////////////////////////////////////////////////////// MESHES
 
 void MyApp::createMeshes() {
+  std::string mesh_dir = "..\\assets\\models\\PickagramParts\\";
+  std::vector<std::string> mesh_files = {
+    "Table.obj",
+	"Cube1.obj",
+	"MajorTriangle1.obj",
+	"MajorTriangle2.obj",
+    "MiniTriangle1.obj",
+    "MiniTriangle2.obj",
+    "Parallelogram.obj",
+    "Triangle1.obj"
+  };
 
-  std::string mesh_dir = "..\\assets\\models\\";
-  // std::string mesh_file = "cube-v.obj";
-  // std::string mesh_file = "cube-vn-flat.obj";
-  // std::string mesh_file = "cube-vn-smooth.obj";
-  // std::string mesh_file = "cube-vt.obj";
-  // std::string mesh_file = "cube-vt2.obj";
-  // std::string mesh_file = "torus-vtn-flat.obj";
-  // std::string mesh_file = "torus-vtn-smooth.obj";
-  // std::string mesh_file = "suzanne-vtn-flat.obj";
-  // std::string mesh_file = "suzanne-vtn-smooth.obj";
-  // std::string mesh_file = "teapot-vn-flat.obj";
-  // std::string mesh_file = "teapot-vn-smooth.obj";
-  // std::string mesh_file = "bunny-vn-flat.obj";
-   std::string mesh_file = "bunny-vn-flat.obj";
-  //std::string mesh_file = "monkey-torus-vtn-flat.obj";
-  std::string mesh_fullname = mesh_dir + mesh_file;
-
-  Mesh = new mgl::Mesh();
-  Mesh->joinIdenticalVertices();
-  Mesh->create(mesh_fullname);
+  for (const auto str : mesh_files) {
+    auto path = mesh_dir + str; 
+    mgl::Mesh* m = new mgl::Mesh();
+	m->joinIdenticalVertices();
+    m->create(path);
+    Meshes.push_back(m);
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////// SHADER
@@ -70,14 +66,15 @@ void MyApp::createShaderPrograms() {
   Shaders->addShader(GL_VERTEX_SHADER, "cube-vs.glsl");
   Shaders->addShader(GL_FRAGMENT_SHADER, "cube-fs.glsl");
 
+  // TODO() Change this Meshes[0]
   Shaders->addAttribute(mgl::POSITION_ATTRIBUTE, mgl::Mesh::POSITION);
-  if (Mesh->hasNormals()) {
+  if (Meshes[0]->hasNormals()) {
     Shaders->addAttribute(mgl::NORMAL_ATTRIBUTE, mgl::Mesh::NORMAL);
   }
-  if (Mesh->hasTexcoords()) {
+  if (Meshes[0]->hasTexcoords()) {
     Shaders->addAttribute(mgl::TEXCOORD_ATTRIBUTE, mgl::Mesh::TEXCOORD);
   }
-  if (Mesh->hasTangentsAndBitangents()) {
+  if (Meshes[0]->hasTangentsAndBitangents()) {
     Shaders->addAttribute(mgl::TANGENT_ATTRIBUTE, mgl::Mesh::TANGENT);
   }
 
@@ -118,11 +115,26 @@ void MyApp::createCamera() {
 
 glm::mat4 ModelMatrix(1.0f);
 
+
 void MyApp::drawScene() {
-  Shaders->bind();
-  glUniformMatrix4fv(ModelMatrixId, 1, GL_FALSE, glm::value_ptr(ModelMatrix));
-  Mesh->draw();
-  Shaders->unbind();
+    mgl::SceneNode* table_node = new mgl::SceneNode(
+        Meshes[0],
+        &ModelMatrix,
+        Shaders
+	);
+
+    for (const auto mesh : Meshes) {
+        mgl::SceneNode* node = new mgl::SceneNode(
+            mesh,
+            &ModelMatrix,
+            Shaders
+		);
+		table_node->addChild(std::unique_ptr<mgl::SceneNode>(node));
+    }
+
+    Shaders->bind();
+    table_node->drawSceneGraph();
+    Shaders->unbind();
 }
 
 ////////////////////////////////////////////////////////////////////// CALLBACKS

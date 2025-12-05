@@ -19,5 +19,6 @@
 #include "./mglMesh.hpp"         // IWYU pragma: keep
 #include "./mglScenegraph.hpp"   // IWYU pragma: keep
 #include "./mglShader.hpp"       // IWYU pragma: keep
+#include "mglSceneNode.hpp"
 
 #endif /* MGL_HPP */
