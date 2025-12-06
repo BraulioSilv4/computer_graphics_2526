@@ -19,6 +19,10 @@
 #include "./mglMesh.hpp"         // IWYU pragma: keep
 #include "./mglScenegraph.hpp"   // IWYU pragma: keep
 #include "./mglShader.hpp"       // IWYU pragma: keep
+
 #include "mglSceneNode.hpp"
+#include "../../ComputerGraphics/InstanceManager.hpp"
+#include "../../ComputerGraphics/InstanceRegistry.hpp"
+#include "../../ComputerGraphics/Prop.hpp"
 
 #endif /* MGL_HPP */

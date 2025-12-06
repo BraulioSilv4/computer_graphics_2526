@@ -68,6 +68,15 @@
     <ClInclude Include="mglSceneNode.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="InstanceManager.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InstanceRegistry.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Prop.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cube-fs.glsl">

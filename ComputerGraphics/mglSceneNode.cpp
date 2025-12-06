@@ -10,17 +10,23 @@ namespace mgl {
 		this->preDrawCallback(this);
 
 		ShaderProgram* shaderProgram = SceneNode::getShaderProgram();
-		GLint modelMatrixLocation = glGetUniformLocation(shaderProgram->ProgramId, MODEL_MATRIX);
-		glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, glm::value_ptr(*modelMatrix));
-		mesh->draw();
+		if(shaderProgram) {
+			GLint modelMatrixLocation = glGetUniformLocation(shaderProgram->ProgramId, MODEL_MATRIX);
+			glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, glm::value_ptr(worldTransform));
+			mesh->draw();
+		}
 
 		this->postDrawCallback(this);
 	}
 
-	void SceneNode::drawSceneGraph() {
-		drawNodeMesh();
-		for (const auto& child : children) {
-			child->drawSceneGraph();
+	void SceneNode::drawSceneGraph(const glm::mat4& parentTransform) {
+		// Model Matrix
+		worldTransform = parentTransform * localTransform;
+
+		this->drawNodeMesh();
+
+		for (const auto& child : this->children) {
+			child->drawSceneGraph(worldTransform);
 		}
 	};
 
@@ -29,9 +35,64 @@ namespace mgl {
 		children.push_back(std::move(child));
 	}
 
+
+
+	/* Relative Transformation Methods.
+	* These methods change the node relative to its current values.
+	*/
+	void SceneNode::transformTranslate(const glm::vec3& transl) {
+		/*localTransform = glm::translate(localTransform, translation);*/
+		translation += transl;
+		updateLocalTransform();
+	}
+
+	void SceneNode::transformScale(const glm::vec3& scale) {
+		scaling *= scale;
+		updateLocalTransform();
+	}
+
+	void SceneNode::transformRotate(const glm::quat& q) {
+		orientation = orientation * q;
+		// preventing possible floating point errors
+		orientation = glm::normalize(orientation);
+		updateLocalTransform();
+	}
+
+	void SceneNode::transformRotate(float rads, const glm::vec3& norm_axis) {
+		glm::quat q = glm::angleAxis(rads, norm_axis);
+		this->transformRotate(q);
+	}
+
+	
+
+	/* Absolute Transformation Methods.
+	* These methods set the node values directly.
+	*/
+	void SceneNode::setPosition(const glm::vec3& position) {
+		translation = position;
+		updateLocalTransform();
+	}
+
+	void SceneNode::setScale(const glm::vec3& scale) {
+		scaling = scale;
+		updateLocalTransform();
+	}
+
+	void SceneNode::setRotation(const glm::quat& q) {
+		orientation = q;
+		updateLocalTransform();
+	}
+
+	void SceneNode::setRotation(float rads, const glm::vec3& norm_axis) {
+		glm::quat q = glm::angleAxis(rads, norm_axis);
+		this->setRotation(q);
+	}
+
+
 	bool SceneNode::hasShaderProgram() const {
 		return shaderProgram != nullptr;
 	}
+
 
 	/* Getters and Setters */
 	void SceneNode::setMesh(Mesh* m) {
@@ -41,11 +102,8 @@ namespace mgl {
 		return mesh;
 	}
 
-	void SceneNode::setModelMatrix(glm::mat4* mm) {
-		modelMatrix = mm;
-	}
-	glm::mat4* SceneNode::getModelMatrix() const {
-		return modelMatrix;
+	glm::mat4 SceneNode::getLocalTransform() const {
+		return localTransform;
 	}
 
 	void SceneNode::setShaderProgram(ShaderProgram* sp) {
@@ -66,4 +124,7 @@ namespace mgl {
 		}
 	}
 
+	std::string SceneNode::getID() const {
+		return name;
+	};
 } // namespace mgl

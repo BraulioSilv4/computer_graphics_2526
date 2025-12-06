@@ -151,7 +151,10 @@
     <ClInclude Include="..\libraries\mgl\mglScenegraph.hpp" />
     <ClInclude Include="..\libraries\mgl\mglShader.hpp" />
     <ClInclude Include="Color.h" />
+    <ClInclude Include="InstanceManager.hpp" />
+    <ClInclude Include="InstanceRegistry.hpp" />
     <ClInclude Include="mglSceneNode.hpp" />
+    <ClInclude Include="Prop.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cube-fs.glsl" />

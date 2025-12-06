@@ -9,10 +9,11 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#define GLM_ENABLE_EXPERIMENTAL
+
 #include "../mgl/mgl.hpp"
 
 #include <iostream>
-#include <vector>
 
 ////////////////////////////////////////////////////////////////////////// MYAPP
 
@@ -27,12 +28,16 @@ private:
   mgl::ShaderProgram *Shaders = nullptr;
   mgl::Camera *Camera = nullptr;
   GLint ModelMatrixId;
-  std::vector<mgl::Mesh*> Meshes;
+  Manager<mgl::Mesh, std::string> MeshManager;
+  Registry<std::string, mgl::SceneNode*> NodeRegistry;
+
+  std::unique_ptr<mgl::SceneNode> sceneRoot = nullptr;
 
   void createMeshes();
+  void createSceneGraph();
   void createShaderPrograms();
   void createCamera();
-  void drawScene();
+  void drawScene(double elapsed);
 };
 
 ///////////////////////////////////////////////////////////////////////// MESHES
@@ -55,7 +60,8 @@ void MyApp::createMeshes() {
     mgl::Mesh* m = new mgl::Mesh();
 	m->joinIdenticalVertices();
     m->create(path);
-    Meshes.push_back(m);
+
+    MeshManager.add(std::unique_ptr<mgl::Mesh>(m));
   }
 }
 
@@ -68,13 +74,13 @@ void MyApp::createShaderPrograms() {
 
   // TODO() Change this Meshes[0]
   Shaders->addAttribute(mgl::POSITION_ATTRIBUTE, mgl::Mesh::POSITION);
-  if (Meshes[0]->hasNormals()) {
+  if (MeshManager.get("..\\assets\\models\\PickagramParts\\Table.obj")->hasNormals()) {
     Shaders->addAttribute(mgl::NORMAL_ATTRIBUTE, mgl::Mesh::NORMAL);
   }
-  if (Meshes[0]->hasTexcoords()) {
+  if (MeshManager.get("..\\assets\\models\\PickagramParts\\Table.obj")->hasTexcoords()) {
     Shaders->addAttribute(mgl::TEXCOORD_ATTRIBUTE, mgl::Mesh::TEXCOORD);
   }
-  if (Meshes[0]->hasTangentsAndBitangents()) {
+  if (MeshManager.get("..\\assets\\models\\PickagramParts\\Table.obj")->hasTangentsAndBitangents()) {
     Shaders->addAttribute(mgl::TANGENT_ATTRIBUTE, mgl::Mesh::TANGENT);
   }
 
@@ -84,6 +90,37 @@ void MyApp::createShaderPrograms() {
 
   ModelMatrixId = Shaders->Uniforms[mgl::MODEL_MATRIX].index;
 }
+
+
+///////////////////////////////////////////////////////////////////////// SCENE GRAPH
+
+void MyApp::createSceneGraph() {
+    std::string rootName = "Table.obj";
+
+    auto root = std::make_unique<mgl::SceneNode>(
+        rootName,
+        MeshManager.get("..\\assets\\models\\PickagramParts\\Table.obj"),
+        Shaders
+    );
+
+    sceneRoot = std::move(root);
+    NodeRegistry.add("Table.obj", sceneRoot.get());
+
+    for (const auto& mesh : MeshManager) {
+        std::string name = mesh->getID().substr(mesh->getID().find_last_of("\\") + 1);
+
+        if (name == rootName) continue;
+
+        auto node = std::make_unique<mgl::SceneNode>(
+            name,
+            mesh.get()
+        );
+
+        NodeRegistry.add(name, node.get());
+        sceneRoot->addChild(std::move(node));
+    }
+}
+
 
 ///////////////////////////////////////////////////////////////////////// CAMERA
 
@@ -113,27 +150,21 @@ void MyApp::createCamera() {
 
 /////////////////////////////////////////////////////////////////////////// DRAW
 
-glm::mat4 ModelMatrix(1.0f);
 
+void MyApp::drawScene(double elapsed) {
+    std::cout << elapsed << std::endl;
+    NodeRegistry.get(TABLE)->transformRotate(glm::radians(-1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    NodeRegistry.get(CUBE)->transformTranslate(glm::vec3(0.0f, 0.01f, 0.0f));
+    NodeRegistry.get(MAJOR_TRIANGLE_1)->transformTranslate(glm::vec3(0.0f, 0.01f, 0.0f));
+    NodeRegistry.get(MAJOR_TRIANGLE_2)->transformTranslate(glm::vec3(0.0f, 0.01f, 0.0f));
+    NodeRegistry.get(MINI_TRIANGLE_1)->transformTranslate(glm::vec3(0.0f, 0.01f, 0.0f));
+    NodeRegistry.get(MINI_TRIANGLE_2)->transformTranslate(glm::vec3(0.0f, 0.01f, 0.0f));
+    NodeRegistry.get(TRIANGLE)->transformTranslate(glm::vec3(0.0f, 0.01f, 0.0f));
+    NodeRegistry.get(PARALLELOGRAM)->transformTranslate(glm::vec3(0.0f, 0.01f, 0.0f));
 
-void MyApp::drawScene() {
-    mgl::SceneNode* table_node = new mgl::SceneNode(
-        Meshes[0],
-        &ModelMatrix,
-        Shaders
-	);
-
-    for (const auto mesh : Meshes) {
-        mgl::SceneNode* node = new mgl::SceneNode(
-            mesh,
-            &ModelMatrix,
-            Shaders
-		);
-		table_node->addChild(std::unique_ptr<mgl::SceneNode>(node));
-    }
 
     Shaders->bind();
-    table_node->drawSceneGraph();
+    sceneRoot->drawSceneGraph();
     Shaders->unbind();
 }
 
@@ -142,6 +173,7 @@ void MyApp::drawScene() {
 void MyApp::initCallback(GLFWwindow *win) {
   createMeshes();
   createShaderPrograms(); // after mesh;
+  createSceneGraph();
   createCamera();
 }
 
@@ -150,7 +182,9 @@ void MyApp::windowSizeCallback(GLFWwindow *win, int winx, int winy) {
   // change projection matrices to maintain aspect ratio
 }
 
-void MyApp::displayCallback(GLFWwindow *win, double elapsed) { drawScene(); }
+void MyApp::displayCallback(GLFWwindow *win, double elapsed) { 
+    drawScene(elapsed); 
+}
 
 /////////////////////////////////////////////////////////////////////////// MAIN
 

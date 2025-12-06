@@ -1,35 +1,57 @@
 #ifndef MGL_SCENENODE_HPP
 #define MGL_SCENENODE_HPP
 
+#define GLM_ENABLE_EXPERIMENTAL
+
 #include <vector>
 #include <memory>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <glm/gtc/quaternion.hpp> 
+#include <glm/gtx/quaternion.hpp>
 
 #include "mglMesh.hpp"
 #include "mglShader.hpp"
 #include "mglConventions.hpp"
 
 namespace mgl {
-
-    class SceneNode {
-    protected:
+    class SceneNode : public IManageable<std::string> {
+    private:
         SceneNode* parent = nullptr;
 		std::vector<std::unique_ptr<SceneNode>> children;
+		
+        // Local transformation relative to parent
+        glm::mat4 localTransform = glm::mat4(1.0f);
+
+        // Transformation to world coordinates
+		glm::mat4 worldTransform = glm::mat4(1.0f);
+
+        // Absolute values
+        glm::vec3 translation = glm::vec3(0.0f);
+        glm::vec3 scaling = glm::vec3(1.0f);
+        glm::quat orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+
+        void updateLocalTransform() {
+            glm::mat4 t = glm::translate(glm::mat4(1.0f), translation);
+            glm::mat4 r = glm::toMat4(orientation);
+            glm::mat4 s = glm::scale(glm::mat4(1.0f), scaling);
+
+            localTransform = t * r * s;
+        }
 
     public:
         using NodeCallback = std::function<void(SceneNode*)>;
 
+        std::string name;
         Mesh* mesh;
-        glm::mat4* modelMatrix;
         mgl::ShaderProgram* shaderProgram = nullptr;
         NodeCallback preDrawCallback = [](SceneNode* n) {};
         NodeCallback postDrawCallback = [](SceneNode* n) {};
 
-        SceneNode(Mesh* _mesh, glm::mat4* _modelMatrix, mgl::ShaderProgram* _shaderProgram = nullptr) {
+        SceneNode(std::string _name, Mesh* _mesh, mgl::ShaderProgram* _shaderProgram = nullptr) {
+            name = _name;
             mesh = _mesh;
-            modelMatrix = _modelMatrix;
 			shaderProgram = _shaderProgram;
         }
 
@@ -37,21 +59,40 @@ namespace mgl {
 
         void drawNodeMesh();
 
-        void drawSceneGraph();
+        //                                                  when root parent is world (world = eye * local)
+        void drawSceneGraph(const glm::mat4& parentTransform = glm::mat4(1.0f));
 
+		/* Child Management Methods */
         void addChild(std::unique_ptr<SceneNode> child);
-        
+      
         bool hasShaderProgram() const;
         
+        /* Relative Transformation Methods.
+        * These methods change the node relative to its current values.
+        */
+		void transformTranslate(const glm::vec3& transl);
+		void transformScale(const glm::vec3& scale);
+		void transformRotate(const glm::quat& q);
+        void transformRotate(float rads, const glm::vec3& norm_axis);
+
+        /* Absolute Transformation Methods.
+        * These methods set the node values directly.
+        */
+        void setPosition(const glm::vec3& position);
+        void setScale(const glm::vec3& scale);
+        void setRotation(const glm::quat& q);
+        void setRotation(float rads, const glm::vec3& norm_axis);
+
         /* Getters and Setters */
         void setMesh(Mesh* m);
 		Mesh* getMesh() const;
 
-		void setModelMatrix(glm::mat4* mm);
-		glm::mat4* getModelMatrix() const;
+		glm::mat4 getLocalTransform() const;
 
         void setShaderProgram(ShaderProgram* sp);
-        ShaderProgram* getShaderProgram() const;  
+        ShaderProgram* getShaderProgram() const; 
+
+        std::string getID() const override;
     };
 }
 

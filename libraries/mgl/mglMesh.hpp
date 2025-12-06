@@ -17,7 +17,8 @@
 #include <string>
 #include <vector>
 
-#include "./mglScenegraph.hpp"
+#include "../../ComputerGraphics/InstanceManager.hpp"
+#include "mglScenegraph.hpp"
 
 namespace mgl {
 
@@ -27,7 +28,7 @@ class Mesh;
 
 /////////////////////////////////////////////////////////////////////////// Mesh
 
-class Mesh : public IDrawable {
+class Mesh : public IDrawable, public IManageable<std::string> {
 public:
   static const GLuint INDEX = 0;
   static const GLuint POSITION = 1;
@@ -41,11 +42,11 @@ public:
   Mesh();
   ~Mesh();
   // No copy and assignment constructor to prevent copying OpenGL resources
-  Mesh(const Mesh &) = delete;
-  Mesh &operator=(const Mesh &) = delete;
-  // Move constructor and assignment to allow transfer of OpenGL resources
-  Mesh(Mesh &) noexcept;
-  Mesh &operator=(Mesh &) noexcept;
+  //Mesh(const Mesh &&) = delete;
+  //Mesh &operator=(const Mesh &&) = delete;
+  //// Move constructor and assignment to allow transfer of OpenGL resources
+  //Mesh(Mesh &) noexcept;
+  //Mesh &operator=(Mesh &) noexcept;
 
   void setAssimpFlags(unsigned int flags);
   void joinIdenticalVertices();
@@ -61,8 +62,10 @@ public:
   bool hasNormals();
   bool hasTexcoords();
   bool hasTangentsAndBitangents();
+  std::string getID() const override;
 
 private:
+  std::string id;
   GLuint VaoId;
   unsigned int AssimpFlags;
   bool NormalsLoaded, TexcoordsLoaded, TangentsAndBitangentsLoaded;

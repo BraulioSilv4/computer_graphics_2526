@@ -145,6 +145,7 @@ void Mesh::create(const std::string &filename) {
   std::cout << "Processing [" << filename << "]" << std::endl;
 #endif
 
+  id = filename;
   processScene(scene);
   createBufferObjects();
 }
@@ -227,6 +228,10 @@ void Mesh::draw() {
     // GLenum mode, GLsizei count, GLenum type, void *indices, GLint basevertex
   }
   glBindVertexArray(0);
+}
+
+std::string Mesh::getID() const {
+    return id;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
