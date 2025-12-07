@@ -1,5 +1,6 @@
 #include "mglSceneNode.hpp"
 #include <glm/ext.hpp> // glm::value_ptr
+#include <iostream>
 
 namespace mgl {
 
@@ -78,6 +79,7 @@ namespace mgl {
 
 	void SceneNode::setRotation(const glm::quat& q) {
 		orientation = q;
+		std::cout << glm::to_string(q) << std::endl;
 		updateLocalTransform();
 	}
 

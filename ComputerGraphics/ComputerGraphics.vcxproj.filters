@@ -63,6 +63,9 @@
     <ClCompile Include="..\libraries\mgl\mglAnimation.cpp">
       <Filter>Source Files\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="..\libraries\mgl\mglAnimationGroup.cpp">
+      <Filter>Source Files\Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\libraries\mgl\mgl.hpp">
@@ -70,12 +73,6 @@
     </ClInclude>
     <ClInclude Include="..\libraries\mgl\mglError.hpp">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="mglInstanceManager.hpp">
-      <Filter>Header Files\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="mglInstanceRegistry.hpp">
-      <Filter>Header Files\Utility</Filter>
     </ClInclude>
     <ClInclude Include="mglProp.hpp">
       <Filter>Header Files\Constants</Filter>
@@ -102,6 +99,15 @@
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
     <ClInclude Include="..\libraries\mgl\mglAnimation.hpp">
+      <Filter>Header Files\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\mgl\mglInstanceManager.hpp">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\mgl\mglInstanceRegistry.hpp">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\mgl\mglAnimationGroup.hpp">
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
   </ItemGroup>

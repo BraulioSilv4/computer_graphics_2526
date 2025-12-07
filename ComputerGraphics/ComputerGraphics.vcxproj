@@ -134,6 +134,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\libraries\mgl\mglAnimation.cpp" />
+    <ClCompile Include="..\libraries\mgl\mglAnimationGroup.cpp" />
     <ClCompile Include="..\libraries\mgl\mglApp.cpp" />
     <ClCompile Include="..\libraries\mgl\mglCamera.cpp" />
     <ClCompile Include="..\libraries\mgl\mglError.cpp" />
@@ -145,16 +146,17 @@
   <ItemGroup>
     <ClInclude Include="..\libraries\mgl\mgl.hpp" />
     <ClInclude Include="..\libraries\mgl\mglAnimation.hpp" />
+    <ClInclude Include="..\libraries\mgl\mglAnimationGroup.hpp" />
     <ClInclude Include="..\libraries\mgl\mglApp.hpp" />
     <ClInclude Include="..\libraries\mgl\mglCamera.hpp" />
     <ClInclude Include="..\libraries\mgl\mglConventions.hpp" />
     <ClInclude Include="..\libraries\mgl\mglError.hpp" />
+    <ClInclude Include="..\libraries\mgl\mglInstanceManager.hpp" />
+    <ClInclude Include="..\libraries\mgl\mglInstanceRegistry.hpp" />
     <ClInclude Include="..\libraries\mgl\mglMesh.hpp" />
     <ClInclude Include="..\libraries\mgl\mglDrawable.hpp" />
     <ClInclude Include="..\libraries\mgl\mglSceneNode.hpp" />
     <ClInclude Include="..\libraries\mgl\mglShader.hpp" />
-    <ClInclude Include="mglInstanceManager.hpp" />
-    <ClInclude Include="mglInstanceRegistry.hpp" />
     <ClInclude Include="mglProp.hpp" />
   </ItemGroup>
   <ItemGroup>

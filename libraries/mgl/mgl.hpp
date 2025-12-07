@@ -24,5 +24,6 @@
 #include "mglProp.hpp"
 #include "mglDrawable.hpp"
 #include "mglAnimation.hpp"
+#include "mglAnimationGroup.hpp"
 
 #endif /* MGL_HPP */

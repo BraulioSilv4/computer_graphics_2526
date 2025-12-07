@@ -31,10 +31,9 @@ private:
   GLint ModelMatrixId;
   mgl::Manager<mgl::Mesh, std::string> MeshManager;
   mgl::Registry<std::string, mgl::SceneNode*> NodeRegistry;
+  mgl::AnimationGroup Animations;
 
   std::unique_ptr<mgl::SceneNode> sceneRoot = nullptr;
-
-  std::unique_ptr<mgl::Animation> animation = nullptr;
 
   void createCamera();
   void createMeshes();
@@ -98,12 +97,74 @@ void MyApp::createShaderPrograms() {
 ///////////////////////////////////////////////////////////////////////// CREATE ANIMATION
 
 void MyApp::createAnimation() {
-    animation = std::make_unique<mgl::Animation>(
-        NodeRegistry.get(mgl::CUBE),
-        3.0f,
-        glm::vec3(5.0f, 3.0f, 1.0f),
-        glm::vec3(1.0f, 1.0f, 1.0f),
-        NodeRegistry.get(mgl::CUBE)->getOrientation()
+    Animations.addAnimation(
+        std::make_unique<mgl::Animation>(
+            NodeRegistry.get(mgl::MAJOR_TRIANGLE_1),
+            0.5f,
+            glm::vec3(0.043611f, 1.180088, 0.835187f),
+            glm::vec3(1.0f, 1.0f, 1.0f),
+            glm::quat(0.428f, 0.563f, -0.428f, -0.563f)
+        )
+    );
+
+    Animations.addAnimation(
+        std::make_unique<mgl::Animation>(
+            NodeRegistry.get(mgl::MAJOR_TRIANGLE_2),
+            0.5f,
+            glm::vec3(0.042847f, 1.57046f, 0.072364f),
+            glm::vec3(1.0f, 1.0f, 1.0f),
+            glm::quat(0.684f, -0.181f, 0.684f, -0.181f)
+        )
+    );
+
+    Animations.addAnimation(
+        std::make_unique<mgl::Animation>(
+            NodeRegistry.get(mgl::MINI_TRIANGLE_2),
+            0.5f,
+            glm::vec3(0.041369f, 0.869238f, 0.287992f),
+            glm::vec3(1.0f, 1.0f, 1.0f),
+            glm::quat(0.701f, 0.095f, -0.701f, -0.095f)
+        )
+    );
+
+    Animations.addAnimation(
+        std::make_unique<mgl::Animation>(
+            NodeRegistry.get(mgl::MINI_TRIANGLE_1),
+            0.5f,
+            glm::vec3(0.04304f, 2.23194f, 0.034844f),
+            glm::vec3(1.0f, 1.0f, 1.0f),
+            glm::quat(0.684f, -0.181f, 0.684f, -0.181f)
+        )
+    );
+
+    Animations.addAnimation(
+        std::make_unique<mgl::Animation>(
+            NodeRegistry.get(mgl::CUBE),
+            0.5f,
+            glm::vec3(0.043611f, 1.86635f, -0.60512f),
+            glm::vec3(1.0f, 1.0f, 1.0f),
+            glm::quat(-0.356f, 0.611f, -0.356f, 0.611f)
+        )
+    );
+
+    Animations.addAnimation(
+        std::make_unique<mgl::Animation>(
+            NodeRegistry.get(mgl::PARALLELOGRAM),
+            0.5f,
+            glm::vec3(0.043153f, 2.23836f, -1.12787f),
+            glm::vec3(1.0f, 1.0f, 1.0f),
+            glm::quat(-0.684f, 0.181f, 0.684f, -0.181f)
+        )
+    );
+
+    Animations.addAnimation(
+        std::make_unique<mgl::Animation>(
+            NodeRegistry.get(mgl::TRIANGLE),
+            0.5f,
+            glm::vec3(0.039279f, 3.06282f, -1.59544),
+            glm::vec3(1.0f, 1.0f, 1.0f),
+            glm::quat(0.419f, 0.570f, 0.438f, 0.555f)
+        )
     );
 }
 
@@ -135,7 +196,31 @@ void MyApp::createSceneGraph() {
         sceneRoot->addChild(std::move(node));
     }
 
+    /* Pickagram Closed Configuration (Positions Obtained in Blender) */
+    /* Scale whole scene down to be in clip space */
     NodeRegistry.get(mgl::TABLE)->setScale(glm::vec3(0.5f, 0.5f, 0.5f));
+    NodeRegistry.get(mgl::TABLE)->setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+
+    NodeRegistry.get(mgl::TRIANGLE)->setPosition(glm::vec3(-0.6f, 0.77f, 0.6f));
+    NodeRegistry.get(mgl::TRIANGLE)->setRotation(glm::radians(90.f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+    NodeRegistry.get(mgl::PARALLELOGRAM)->setPosition(glm::vec3(-0.72f, 0.77f, -0.25f));
+    NodeRegistry.get(mgl::PARALLELOGRAM)->setRotation(glm::radians(90.f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+    NodeRegistry.get(mgl::CUBE)->setPosition(glm::vec3(0.0f, 0.77f, 0.47f));
+    NodeRegistry.get(mgl::CUBE)->setRotation(glm::radians(90.f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+    NodeRegistry.get(mgl::MINI_TRIANGLE_1)->setPosition(glm::vec3(-0.31f, 0.77f, 0.0f));
+    NodeRegistry.get(mgl::MINI_TRIANGLE_1)->setRotation(glm::radians(90.f), glm::vec3(1.0f, 0.0f, 0.0f));
+    
+    NodeRegistry.get(mgl::MINI_TRIANGLE_2)->setPosition(glm::vec3(0.47f, 0.77f, 0.78f));
+    NodeRegistry.get(mgl::MINI_TRIANGLE_2)->setRotation(glm::radians(90.f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+    NodeRegistry.get(mgl::MAJOR_TRIANGLE_1)->setPosition(glm::vec3(0.62f, 0.77f, 0.0f));
+    NodeRegistry.get(mgl::MAJOR_TRIANGLE_1)->setRotation(glm::radians(90.f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+    NodeRegistry.get(mgl::MAJOR_TRIANGLE_2)->setPosition(glm::vec3(0.0f, 0.77f, -0.62f));
+    NodeRegistry.get(mgl::MAJOR_TRIANGLE_2)->setRotation(glm::radians(90.f), glm::vec3(1.0f, 0.0f, 0.0f));
 }
 
 
@@ -143,7 +228,7 @@ void MyApp::createSceneGraph() {
 
 // Eye(5,5,5) Center(0,0,0) Up(0,1,0)
 const glm::mat4 ViewMatrix1 =
-    glm::lookAt(glm::vec3(5.0f, 5.0f, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f),
+    glm::lookAt(glm::vec3(-5.0f, 5.0f, -5.0f), glm::vec3(0.0f, 0.0f, 0.0f),
                 glm::vec3(0.0f, 1.0f, 0.0f));
 
 // Eye(-5,-5,-5) Center(0,0,0) Up(0,1,0)
@@ -169,11 +254,7 @@ void MyApp::createCamera() {
 
 
 void MyApp::drawScene(double elapsed) {
-    //NodeRegistry.get(mgl::CUBE)->setPosition(glm::vec3(0.0f, 2.0f, 0.0f));
-    //NodeRegistry.get(mgl::CUBE)->setRotation(glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    //NodeRegistry.get(mgl::CUBE)->setRotation(glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-
-    NodeRegistry.get(mgl::TABLE)->transformRotate(glm::radians(1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    //NodeRegistry.get(mgl::TRIANGLE)->transformRotate(glm::radians(1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
     Shaders->bind();
     sceneRoot->drawSceneGraph();
@@ -202,11 +283,11 @@ void MyApp::displayCallback(GLFWwindow *win, double elapsed) {
 void MyApp::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods, double elapsed) {
     std::cout << "Key" << key << "\n" << "Scancode" << scancode << "\n" << "Action" << action << "\n"
         << "mods" << mods << std::endl;
-    if (scancode == 32) {
-        animation->play(elapsed);
+    if (scancode == 333) {
+        Animations.play(elapsed);
     }
-    if (scancode == 30) {
-        animation->play(elapsed, true);
+    if (scancode == 331) {
+        Animations.play(elapsed, true);
     }
 }
 
