@@ -22,9 +22,25 @@ public:
   void initCallback(GLFWwindow *win) override;
   void displayCallback(GLFWwindow *win, double elapsed) override;
   void windowSizeCallback(GLFWwindow *win, int width, int height) override;
+  void cursorCallback(GLFWwindow* window, double xpos, double ypos) override;
   void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods, double elapsed) override;
+  void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) override;
+  void scrollCallback(GLFWwindow* window, double xoffset, double yoffset) override;
+
 
 private:
+  glm::vec3 BoxCenter = glm::vec3(0.0f,0.2f,0.0f), SharkCenter = glm::vec3(0.0f,1.0f,0.0f), * center = &BoxCenter;
+  glm::vec3 BoxPosition = glm::vec3(5.0f, 5.0f, 5.0f), SharkPosition = glm::vec3(-5.0f, 5.0f, -5.0f);
+  glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+  glm::vec2 mouseInput = glm::vec2(0);
+  bool pressed = false;
+  bool BoxActive = true;
+  glm::mat4 BoxView;
+  glm::mat4 SharkView;
+  bool ortho_mode = false;
+  glm::mat4 Ortho_Pro = glm::ortho(-2.0f, 2.0f, -2.0f, 2.0f, 0.1f, 100.0f);
+  glm::mat4 Pesp_Pro = glm::perspective(glm::radians(30.0f), 640.0f / 480.0f, 0.1f, 100.0f);
+
   const GLuint UBO_BP = 0;
   mgl::ShaderProgram *Shaders = nullptr;
   mgl::Camera *Camera = nullptr;
@@ -228,12 +244,12 @@ void MyApp::createSceneGraph() {
 
 // Eye(5,5,5) Center(0,0,0) Up(0,1,0)
 const glm::mat4 ViewMatrix1 =
-    glm::lookAt(glm::vec3(-5.0f, 5.0f, -5.0f), glm::vec3(0.0f, 0.0f, 0.0f),
+    glm::lookAt(glm::vec3(5.0f, 5.0f, 5.0f), glm::vec3(0.0f, 0.2f, 0.0f),
                 glm::vec3(0.0f, 1.0f, 0.0f));
 
 // Eye(-5,-5,-5) Center(0,0,0) Up(0,1,0)
 const glm::mat4 ViewMatrix2 =
-    glm::lookAt(glm::vec3(-5.0f, -5.0f, -5.0f), glm::vec3(0.0f, 0.0f, 0.0f),
+    glm::lookAt(glm::vec3(-5.0f, 5.0f, -5.0f), glm::vec3(0.0f, 1.0f, 0.0f),
                 glm::vec3(0.0f, 1.0f, 0.0f));
 
 // Orthographic LeftRight(-2,2) BottomTop(-2,2) NearFar(1,10)
@@ -245,9 +261,12 @@ const glm::mat4 ProjectionMatrix2 =
     glm::perspective(glm::radians(30.0f), 640.0f / 480.0f, 1.0f, 10.0f);
 
 void MyApp::createCamera() {
-  Camera = new mgl::Camera(UBO_BP);
-  Camera->setViewMatrix(ViewMatrix1);
-  Camera->setProjectionMatrix(ProjectionMatrix2);
+    BoxView = ViewMatrix1;
+    SharkView = ViewMatrix2;
+
+    Camera = new mgl::Camera(UBO_BP);
+    Camera->setViewMatrix(BoxView);
+    Camera->setProjectionMatrix(Pesp_Pro);
 }
 
 /////////////////////////////////////////////////////////////////////////// DRAW
@@ -259,6 +278,7 @@ void MyApp::drawScene(double elapsed) {
     Shaders->bind();
     sceneRoot->drawSceneGraph();
     Shaders->unbind();
+
 }
 
 ////////////////////////////////////////////////////////////////////// CALLBACKS
@@ -273,11 +293,46 @@ void MyApp::initCallback(GLFWwindow *win) {
 
 void MyApp::windowSizeCallback(GLFWwindow *win, int winx, int winy) {
   glViewport(0, 0, winx, winy);
-  // change projection matrices to maintain aspect ratio
+  if (ortho_mode) {
+      float ratio = (float)winx / winy;
+      Ortho_Pro = glm::ortho(-2.0f, 2.0f * 3 / 4 * ratio, -2.0f * 3 / 4 * ratio, 2.0f, 0.1f, 100.0f);
+      Camera->setProjectionMatrix(Ortho_Pro);
+  }
+  else {
+      float ratio = (float)winx / winy;
+      Pesp_Pro = glm::perspective(glm::radians(30.0f), ratio, 0.1f, 100.0f);
+      Camera->setProjectionMatrix(Pesp_Pro);
+  }
 }
 
 void MyApp::displayCallback(GLFWwindow *win, double elapsed) { 
     drawScene(elapsed); 
+}
+
+void MyApp::cursorCallback(GLFWwindow* window, double xpos, double ypos) {
+    if (pressed) {
+        float xChange, yChange;
+        glm::vec3* position = BoxActive ? &BoxPosition : &SharkPosition;
+
+        glm::vec3 forward_vector = glm::normalize(*position - *center);
+        glm::vec3 left_vector = glm::normalize(glm::cross(forward_vector, up));
+        glm::vec3 up_vector = glm::normalize(glm::cross(left_vector, forward_vector));
+        left_vector = glm::normalize(glm::cross(forward_vector, up_vector));
+
+        xpos - mouseInput.x > 0 ? xChange = 1 : xChange = -1;
+        ypos - mouseInput.y > 0 ? yChange = 1 : yChange = -1;
+
+        glm::quat rotX = glm::angleAxis(glm::radians(2.5f * xChange), up_vector);
+        glm::quat rotY = glm::angleAxis(glm::radians(2.5f * -yChange), left_vector);
+
+
+        if (abs(xpos - mouseInput.x) >= 0.001) *position = *position * rotX;
+        if (abs(ypos - mouseInput.y) >= 0.001) *position = *position * rotY;
+
+        Camera->setViewMatrix(glm::lookAt(*position, *center, up));
+        mouseInput = glm::vec2(xpos, ypos);
+    }
+
 }
 
 void MyApp::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods, double elapsed) {
@@ -289,6 +344,89 @@ void MyApp::keyCallback(GLFWwindow* window, int key, int scancode, int action, i
     if (scancode == 331) {
         Animations.play(elapsed, true);
     }
+    /*if (key == GLFW_KEY_LEFT) {
+        if (action == GLFW_PRESS) {
+            std::cout << "press <-" << std::endl;
+            //animação a caminho da forma caixa
+        }if (action == GLFW_RELEASE) {
+            std::cout << "release <-" << std::endl;
+            //para a animação
+        }
+    }
+    if (key == GLFW_KEY_RIGHT) {
+        if (action == GLFW_PRESS) {
+            std::cout << "press ->" << std::endl;
+            //animação a caminho da forma tubarão
+        }if (action == GLFW_RELEASE) {
+            std::cout << "release ->" << std::endl;
+            //para a animação
+        }
+    }*/
+    if (key == GLFW_KEY_C) {
+        if (action == GLFW_PRESS) {
+            std::cout << "press c" << std::endl;
+            BoxActive = !BoxActive;
+            if (BoxActive) {
+                center = &BoxCenter;
+                SharkView = Camera->getViewMatrix();
+                Camera->setViewMatrix(BoxView);
+            }
+            else {
+                center = &SharkCenter;
+                BoxView = Camera->getViewMatrix();
+                Camera->setViewMatrix(SharkView);
+            }
+        }
+    }
+    if (key == GLFW_KEY_P) {
+        if (action == GLFW_PRESS) {
+            std::cout << "press p" << std::endl;
+            ortho_mode = !ortho_mode;
+            ortho_mode ? Camera->setProjectionMatrix(Ortho_Pro) : Camera->setProjectionMatrix(Pesp_Pro);
+        }
+    }
+}
+
+void MyApp::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+    //probably fazemos com tipo uma flag para o cursor? visto que a posição é separada do click, isto só dá o press/release
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+        //mover pela superficie
+        if (action == GLFW_PRESS) {
+            std::cout << "press left mouse" << std::endl;
+        }if (action == GLFW_RELEASE) {
+            std::cout << "release left mouse" << std::endl;
+        }
+    }
+    else {
+        //mover a camera
+        if (action == GLFW_PRESS) {
+            pressed = true;
+            double xpos, ypos;
+            glfwGetCursorPos(window, &xpos, &ypos);
+            mouseInput = glm::vec2(xpos, ypos);
+        }if (action == GLFW_RELEASE) {
+            pressed = false;
+            glm::vec3* position = BoxActive ? &BoxPosition : &SharkPosition;
+            std::cout << (Camera->getViewMatrix());
+
+        }
+    }
+
+}
+
+void MyApp::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+    //xoffset parece ser inutil para o nosso projeto
+    //aproximar/afastar do centro da camera
+    glm::vec3* position = BoxActive ? &BoxPosition : &SharkPosition;
+    glm::vec3 forward_vector = glm::normalize(*position - *center);
+    if (yoffset < 0) {
+        *position += 0.25f * forward_vector;
+    }
+    else {
+        *position -= 0.25f * forward_vector;
+    }
+    Camera->setViewMatrix(glm::lookAt(*position, *center,
+        up));
 }
 
 /////////////////////////////////////////////////////////////////////////// MAIN
