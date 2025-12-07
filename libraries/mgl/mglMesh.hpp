@@ -17,8 +17,8 @@
 #include <string>
 #include <vector>
 
-#include "../../ComputerGraphics/InstanceManager.hpp"
-#include "mglScenegraph.hpp"
+#include "mglDrawable.hpp"
+#include "mglInstanceManager.hpp"
 
 namespace mgl {
 

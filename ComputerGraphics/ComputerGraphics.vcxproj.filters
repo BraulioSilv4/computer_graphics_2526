@@ -13,77 +13,104 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\Shaders">
+      <UniqueIdentifier>{161a77df-7ca6-4f3f-b282-aa0808fc0456}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Utility">
+      <UniqueIdentifier>{ace7a8a8-599e-4cf8-8e1c-e47c51801d5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Constants">
+      <UniqueIdentifier>{0e1ebcb2-1a5d-481e-aa0a-121ba63c76e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Engine">
+      <UniqueIdentifier>{96ce0ec5-659c-4bf7-b696-af3c554e0989}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shaders">
+      <UniqueIdentifier>{f58e294a-4c0c-45ce-b89b-438cc1206725}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine">
+      <UniqueIdentifier>{7615fde9-a7cb-4711-8fa8-bb5c96c6b2d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Scene">
+      <UniqueIdentifier>{893a2176-c2fd-482b-82b4-f1a95c2fa850}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Scene">
+      <UniqueIdentifier>{ad9be0e2-9a51-4f40-b326-84292d9130fe}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\libraries\mgl\mglApp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\libraries\mgl\mglError.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\libraries\mgl\mglShader.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\mgl\mglApp.cpp">
+      <Filter>Source Files\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\mgl\mglShader.cpp">
+      <Filter>Source Files\Shaders</Filter>
     </ClCompile>
     <ClCompile Include="..\libraries\mgl\mglCamera.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Scene</Filter>
     </ClCompile>
     <ClCompile Include="..\libraries\mgl\mglMesh.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="mesh-loader.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\libraries\mgl\mglSceneNode.cpp">
+      <Filter>Source Files\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="mglSceneNode.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\libraries\mgl\mglAnimation.cpp">
+      <Filter>Source Files\Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Color.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\libraries\mgl\mgl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\mgl\mglApp.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libraries\mgl\mglConventions.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\libraries\mgl\mglError.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="mglInstanceManager.hpp">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="mglInstanceRegistry.hpp">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="mglProp.hpp">
+      <Filter>Header Files\Constants</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\mgl\mglConventions.hpp">
+      <Filter>Header Files\Constants</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\mgl\mglApp.hpp">
+      <Filter>Header Files\Engine</Filter>
+    </ClInclude>
     <ClInclude Include="..\libraries\mgl\mglShader.hpp">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\mgl\mglDrawable.hpp">
+      <Filter>Header Files\Utility</Filter>
     </ClInclude>
     <ClInclude Include="..\libraries\mgl\mglCamera.hpp">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Scene</Filter>
     </ClInclude>
     <ClInclude Include="..\libraries\mgl\mglMesh.hpp">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="..\libraries\mgl\mglScenegraph.hpp">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\libraries\mgl\mglSceneNode.hpp">
+      <Filter>Header Files\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="mglSceneNode.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="InstanceManager.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="InstanceRegistry.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Prop.hpp">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\libraries\mgl\mglAnimation.hpp">
+      <Filter>Header Files\Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cube-fs.glsl">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Shaders</Filter>
     </None>
     <None Include="cube-vs.glsl">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Shaders</Filter>
     </None>
   </ItemGroup>
 </Project>

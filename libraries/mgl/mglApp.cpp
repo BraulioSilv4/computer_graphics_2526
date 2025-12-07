@@ -36,8 +36,9 @@ static void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos) {
 
 static void key_callback(GLFWwindow *window, int key, int scancode, int action,
                          int mods) {
-  Engine::getInstance().getApp()->keyCallback(window, key, scancode, action,
-                                              mods);
+    double elapsed = glfwGetTime() - Engine::getInstance().getLastTime();
+    Engine::getInstance().getApp()->keyCallback(window, key, scancode, action,
+                                              mods, elapsed);
 }
 
 static void mouse_button_callback(GLFWwindow *window, int button, int action,
@@ -76,6 +77,10 @@ void Engine::setApp(App *app) { GlApp = app; }
 void Engine::setOpenGL(int major, int minor) {
   GlMajor = major;
   GlMinor = minor;
+}
+
+double Engine::getLastTime() const {
+    return lastTime;
 }
 
 void Engine::setWindow(int width, int height, const char *title, int fullscreen,
@@ -175,12 +180,12 @@ void Engine::init() {
 //////////////////////////////////////////////////////////////////////////// RUN
 
 void Engine::run() {
-  double last_time = glfwGetTime();
+  lastTime = glfwGetTime();
   while (!glfwWindowShouldClose(Window)) {
     try {
       double time = glfwGetTime();
-      double elapsed_time = time - last_time;
-      last_time = time;
+      double elapsed_time = time - lastTime;
+      lastTime = time;
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
               GL_STENCIL_BUFFER_BIT);
       GlApp->displayCallback(Window, elapsed_time);

@@ -6,8 +6,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef MGL_SCENEGRAPH_HPP
-#define MGL_SCENEGRAPH_HPP
+#ifndef MGL_DRAWABLE_HPP
+#define MGL_DRAWABLE_HPP
 
 namespace mgl {
 
@@ -23,4 +23,4 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 } // namespace mgl
 
-#endif /* MGL_SCENEGRAPH_HPP */
+#endif /* MGL_DRAWABLE_HPP */

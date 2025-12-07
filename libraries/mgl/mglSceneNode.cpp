@@ -1,7 +1,6 @@
 #include "mglSceneNode.hpp"
 #include <glm/ext.hpp> // glm::value_ptr
 
-#include <iostream>
 namespace mgl {
 
 	SceneNode::~SceneNode() {}
@@ -41,7 +40,6 @@ namespace mgl {
 	* These methods change the node relative to its current values.
 	*/
 	void SceneNode::transformTranslate(const glm::vec3& transl) {
-		/*localTransform = glm::translate(localTransform, translation);*/
 		translation += transl;
 		updateLocalTransform();
 	}
@@ -95,6 +93,18 @@ namespace mgl {
 
 
 	/* Getters and Setters */
+	glm::vec3 SceneNode::getTranslation() const {
+		return translation;
+	}
+
+	glm::vec3 SceneNode::getScale() const {
+		return scaling;
+	}
+
+	glm::quat SceneNode::getOrientation() const {
+		return orientation;
+	}
+
 	void SceneNode::setMesh(Mesh* m) {
 		mesh = m;
 	}

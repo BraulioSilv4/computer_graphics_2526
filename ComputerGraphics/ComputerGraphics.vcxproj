@@ -133,28 +133,29 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\libraries\mgl\mglAnimation.cpp" />
     <ClCompile Include="..\libraries\mgl\mglApp.cpp" />
     <ClCompile Include="..\libraries\mgl\mglCamera.cpp" />
     <ClCompile Include="..\libraries\mgl\mglError.cpp" />
     <ClCompile Include="..\libraries\mgl\mglMesh.cpp" />
+    <ClCompile Include="..\libraries\mgl\mglSceneNode.cpp" />
     <ClCompile Include="..\libraries\mgl\mglShader.cpp" />
-    <ClCompile Include="mesh-loader.cpp" />
-    <ClCompile Include="mglSceneNode.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\libraries\mgl\mgl.hpp" />
+    <ClInclude Include="..\libraries\mgl\mglAnimation.hpp" />
     <ClInclude Include="..\libraries\mgl\mglApp.hpp" />
     <ClInclude Include="..\libraries\mgl\mglCamera.hpp" />
     <ClInclude Include="..\libraries\mgl\mglConventions.hpp" />
     <ClInclude Include="..\libraries\mgl\mglError.hpp" />
     <ClInclude Include="..\libraries\mgl\mglMesh.hpp" />
-    <ClInclude Include="..\libraries\mgl\mglScenegraph.hpp" />
+    <ClInclude Include="..\libraries\mgl\mglDrawable.hpp" />
+    <ClInclude Include="..\libraries\mgl\mglSceneNode.hpp" />
     <ClInclude Include="..\libraries\mgl\mglShader.hpp" />
-    <ClInclude Include="Color.h" />
-    <ClInclude Include="InstanceManager.hpp" />
-    <ClInclude Include="InstanceRegistry.hpp" />
-    <ClInclude Include="mglSceneNode.hpp" />
-    <ClInclude Include="Prop.hpp" />
+    <ClInclude Include="mglInstanceManager.hpp" />
+    <ClInclude Include="mglInstanceRegistry.hpp" />
+    <ClInclude Include="mglProp.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cube-fs.glsl" />

@@ -5,15 +5,16 @@
 
 #include <vector>
 #include <memory>
-
+#include <string>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/gtc/quaternion.hpp> 
 #include <glm/gtx/quaternion.hpp>
 
-#include "mglMesh.hpp"
-#include "mglShader.hpp"
+#include "mglInstanceManager.hpp"
 #include "mglConventions.hpp"
+#include "mglShader.hpp"
+#include "mglMesh.hpp"
 
 namespace mgl {
     class SceneNode : public IManageable<std::string> {
@@ -44,12 +45,12 @@ namespace mgl {
         using NodeCallback = std::function<void(SceneNode*)>;
 
         std::string name;
-        Mesh* mesh;
+        mgl::Mesh* mesh;
         mgl::ShaderProgram* shaderProgram = nullptr;
         NodeCallback preDrawCallback = [](SceneNode* n) {};
         NodeCallback postDrawCallback = [](SceneNode* n) {};
 
-        SceneNode(std::string _name, Mesh* _mesh, mgl::ShaderProgram* _shaderProgram = nullptr) {
+        SceneNode(std::string _name, mgl::Mesh* _mesh, mgl::ShaderProgram* _shaderProgram = nullptr) {
             name = _name;
             mesh = _mesh;
 			shaderProgram = _shaderProgram;
@@ -75,6 +76,8 @@ namespace mgl {
 		void transformRotate(const glm::quat& q);
         void transformRotate(float rads, const glm::vec3& norm_axis);
 
+        /* Getters and Setters */
+        
         /* Absolute Transformation Methods.
         * These methods set the node values directly.
         */
@@ -83,14 +86,17 @@ namespace mgl {
         void setRotation(const glm::quat& q);
         void setRotation(float rads, const glm::vec3& norm_axis);
 
-        /* Getters and Setters */
-        void setMesh(Mesh* m);
-		Mesh* getMesh() const;
+        glm::vec3 getTranslation() const;
+        glm::vec3 getScale() const;
+        glm::quat getOrientation() const;
+
+        void setMesh(mgl::Mesh* m);
+		mgl::Mesh* getMesh() const;
 
 		glm::mat4 getLocalTransform() const;
 
-        void setShaderProgram(ShaderProgram* sp);
-        ShaderProgram* getShaderProgram() const; 
+        void setShaderProgram(mgl::ShaderProgram* sp);
+        mgl::ShaderProgram* getShaderProgram() const; 
 
         std::string getID() const override;
     };

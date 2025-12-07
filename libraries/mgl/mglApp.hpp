@@ -29,7 +29,7 @@ public:
   virtual void windowSizeCallback(GLFWwindow *window, int width, int height) {}
   virtual void cursorCallback(GLFWwindow *window, double xpos, double ypos) {}
   virtual void keyCallback(GLFWwindow *window, int key, int scancode,
-                           int action, int mods) {}
+                           int action, int mods, double elapsed) {}
   virtual void mouseButtonCallback(GLFWwindow *window, int button, int action,
                                    int mods) {}
   virtual void scrollCallback(GLFWwindow *window, double xoffset,
@@ -56,6 +56,8 @@ public:
   void init();
   void run();
 
+  double getLastTime() const;
+
 protected:
   virtual ~Engine();
 
@@ -67,6 +69,7 @@ private:
   int GlMajor, GlMinor;
   int Fullscreen;
   int Vsync;
+  double lastTime = 0.0;
 
   void setupWindow();
   void setupGLFW();

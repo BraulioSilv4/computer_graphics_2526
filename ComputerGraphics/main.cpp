@@ -22,21 +22,25 @@ public:
   void initCallback(GLFWwindow *win) override;
   void displayCallback(GLFWwindow *win, double elapsed) override;
   void windowSizeCallback(GLFWwindow *win, int width, int height) override;
+  void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods, double elapsed) override;
 
 private:
   const GLuint UBO_BP = 0;
   mgl::ShaderProgram *Shaders = nullptr;
   mgl::Camera *Camera = nullptr;
   GLint ModelMatrixId;
-  Manager<mgl::Mesh, std::string> MeshManager;
-  Registry<std::string, mgl::SceneNode*> NodeRegistry;
+  mgl::Manager<mgl::Mesh, std::string> MeshManager;
+  mgl::Registry<std::string, mgl::SceneNode*> NodeRegistry;
 
   std::unique_ptr<mgl::SceneNode> sceneRoot = nullptr;
 
+  std::unique_ptr<mgl::Animation> animation = nullptr;
+
+  void createCamera();
   void createMeshes();
+  void createAnimation();
   void createSceneGraph();
   void createShaderPrograms();
-  void createCamera();
   void drawScene(double elapsed);
 };
 
@@ -91,6 +95,17 @@ void MyApp::createShaderPrograms() {
   ModelMatrixId = Shaders->Uniforms[mgl::MODEL_MATRIX].index;
 }
 
+///////////////////////////////////////////////////////////////////////// CREATE ANIMATION
+
+void MyApp::createAnimation() {
+    animation = std::make_unique<mgl::Animation>(
+        NodeRegistry.get(mgl::CUBE),
+        3.0f,
+        glm::vec3(5.0f, 3.0f, 1.0f),
+        glm::vec3(1.0f, 1.0f, 1.0f),
+        NodeRegistry.get(mgl::CUBE)->getOrientation()
+    );
+}
 
 ///////////////////////////////////////////////////////////////////////// SCENE GRAPH
 
@@ -104,7 +119,7 @@ void MyApp::createSceneGraph() {
     );
 
     sceneRoot = std::move(root);
-    NodeRegistry.add("Table.obj", sceneRoot.get());
+    NodeRegistry.add(mgl::TABLE, sceneRoot.get());
 
     for (const auto& mesh : MeshManager) {
         std::string name = mesh->getID().substr(mesh->getID().find_last_of("\\") + 1);
@@ -119,6 +134,8 @@ void MyApp::createSceneGraph() {
         NodeRegistry.add(name, node.get());
         sceneRoot->addChild(std::move(node));
     }
+
+    NodeRegistry.get(mgl::TABLE)->setScale(glm::vec3(0.5f, 0.5f, 0.5f));
 }
 
 
@@ -152,16 +169,11 @@ void MyApp::createCamera() {
 
 
 void MyApp::drawScene(double elapsed) {
-    std::cout << elapsed << std::endl;
-    NodeRegistry.get(TABLE)->transformRotate(glm::radians(-1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    NodeRegistry.get(CUBE)->transformTranslate(glm::vec3(0.0f, 0.01f, 0.0f));
-    NodeRegistry.get(MAJOR_TRIANGLE_1)->transformTranslate(glm::vec3(0.0f, 0.01f, 0.0f));
-    NodeRegistry.get(MAJOR_TRIANGLE_2)->transformTranslate(glm::vec3(0.0f, 0.01f, 0.0f));
-    NodeRegistry.get(MINI_TRIANGLE_1)->transformTranslate(glm::vec3(0.0f, 0.01f, 0.0f));
-    NodeRegistry.get(MINI_TRIANGLE_2)->transformTranslate(glm::vec3(0.0f, 0.01f, 0.0f));
-    NodeRegistry.get(TRIANGLE)->transformTranslate(glm::vec3(0.0f, 0.01f, 0.0f));
-    NodeRegistry.get(PARALLELOGRAM)->transformTranslate(glm::vec3(0.0f, 0.01f, 0.0f));
+    //NodeRegistry.get(mgl::CUBE)->setPosition(glm::vec3(0.0f, 2.0f, 0.0f));
+    //NodeRegistry.get(mgl::CUBE)->setRotation(glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    //NodeRegistry.get(mgl::CUBE)->setRotation(glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
+    NodeRegistry.get(mgl::TABLE)->transformRotate(glm::radians(1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
     Shaders->bind();
     sceneRoot->drawSceneGraph();
@@ -174,6 +186,7 @@ void MyApp::initCallback(GLFWwindow *win) {
   createMeshes();
   createShaderPrograms(); // after mesh;
   createSceneGraph();
+  createAnimation();
   createCamera();
 }
 
@@ -184,6 +197,17 @@ void MyApp::windowSizeCallback(GLFWwindow *win, int winx, int winy) {
 
 void MyApp::displayCallback(GLFWwindow *win, double elapsed) { 
     drawScene(elapsed); 
+}
+
+void MyApp::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods, double elapsed) {
+    std::cout << "Key" << key << "\n" << "Scancode" << scancode << "\n" << "Action" << action << "\n"
+        << "mods" << mods << std::endl;
+    if (scancode == 32) {
+        animation->play(elapsed);
+    }
+    if (scancode == 30) {
+        animation->play(elapsed, true);
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////// MAIN
