@@ -29,21 +29,25 @@ public:
 
 
 private:
-  glm::vec3 BoxCenter = glm::vec3(0.0f,0.2f,0.0f), SharkCenter = glm::vec3(0.0f,1.0f,0.0f), * center = &BoxCenter;
-  glm::vec3 BoxPosition = glm::vec3(5.0f, 5.0f, 5.0f), SharkPosition = glm::vec3(-5.0f, 5.0f, -5.0f);
+  glm::vec3 BoxCenter = glm::vec3(0.0f, 0.2f, 0.0f);
+  glm::vec3 SharkCenter = glm::vec3(0.0f, 1.0f, 0.0f);
+  glm::vec3 BoxPosition = glm::vec3(5.0f, 5.0f, 5.0f);
+  glm::vec3 SharkPosition = glm::vec3(-5.0f, 5.0f, -5.0f);
   glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-  glm::vec2 RightInput = glm::vec2(0),LeftInput = glm::vec2(0);
-  bool RightPressed = false,LeftPressed = false;
+  glm::vec2 MouseInput = glm::vec2(0),LeftInput = glm::vec2(0);
+  bool RightPressed = false;
+  bool LeftPressed = false;
   bool BoxActive = true;
-  glm::mat4 BoxView;
-  glm::mat4 SharkView;
   bool ortho_mode = false;
   glm::mat4 Ortho_Pro = glm::ortho(-2.0f, 2.0f, -2.0f, 2.0f, 0.1f, 100.0f);
   glm::mat4 Pesp_Pro = glm::perspective(glm::radians(30.0f), 640.0f / 480.0f, 0.1f, 100.0f);
 
   const GLuint UBO_BP = 0;
-  mgl::ShaderProgram *Shaders = nullptr;
   mgl::Camera *Camera = nullptr;
+  std::unique_ptr<mgl::OrbitCamera> boxCamera;
+  std::unique_ptr<mgl::OrbitCamera> sharkCam;
+  mgl::OrbitCamera* activeCamera = nullptr;
+  mgl::ShaderProgram *Shaders = nullptr;
   GLint ModelMatrixId;
   mgl::Manager<mgl::Mesh, std::string> MeshManager;
   mgl::Registry<std::string, mgl::SceneNode*> NodeRegistry;
@@ -250,31 +254,17 @@ void MyApp::createSceneGraph() {
 
 ///////////////////////////////////////////////////////////////////////// CAMERA
 
-// Eye(5,5,5) Center(0,0,0) Up(0,1,0)
-const glm::mat4 ViewMatrix1 =
-    glm::lookAt(glm::vec3(5.0f, 5.0f, 5.0f), glm::vec3(0.0f, 0.2f, 0.0f),
-                glm::vec3(0.0f, 1.0f, 0.0f));
-
-// Eye(-5,-5,-5) Center(0,0,0) Up(0,1,0)
-const glm::mat4 ViewMatrix2 =
-    glm::lookAt(glm::vec3(-5.0f, 5.0f, -5.0f), glm::vec3(0.0f, 1.0f, 0.0f),
-                glm::vec3(0.0f, 1.0f, 0.0f));
-
-// Orthographic LeftRight(-2,2) BottomTop(-2,2) NearFar(1,10)
-const glm::mat4 ProjectionMatrix1 =
-    glm::ortho(-2.0f, 2.0f, -2.0f, 2.0f, 1.0f, 10.0f);
-
-// Perspective Fovy(30) Aspect(640/480) NearZ(1) FarZ(10)
-const glm::mat4 ProjectionMatrix2 =
-    glm::perspective(glm::radians(30.0f), 640.0f / 480.0f, 1.0f, 10.0f);
-
 void MyApp::createCamera() {
-    BoxView = ViewMatrix1;
-    SharkView = ViewMatrix2;
-
     Camera = new mgl::Camera(UBO_BP);
-    Camera->setViewMatrix(BoxView);
-    Camera->setProjectionMatrix(Pesp_Pro);
+
+    sharkCam = std::make_unique<mgl::OrbitCamera>(Camera, SharkCenter, SharkPosition, up);
+    sharkCam->setProjection(Pesp_Pro);
+
+    boxCamera = std::make_unique<mgl::OrbitCamera>(Camera, BoxCenter, BoxPosition, up);
+    boxCamera->setProjection(Pesp_Pro);
+
+    /* Setting default active camera to box camera */
+    activeCamera = boxCamera.get();
 }
 
 /////////////////////////////////////////////////////////////////////////// DRAW
@@ -316,44 +306,15 @@ void MyApp::displayCallback(GLFWwindow *win, double elapsed) {
 }
 
 void MyApp::cursorCallback(GLFWwindow* window, double xpos, double ypos) {
+    float dx = xpos - MouseInput.x;
+    float dy = ypos - MouseInput.y;
     if (RightPressed) {
-        float xChange, yChange;
-        glm::vec3* position = BoxActive ? &BoxPosition : &SharkPosition;
-
-        glm::vec3 forward_vector = glm::normalize(*position - *center);
-        glm::vec3 left_vector = glm::normalize(glm::cross(forward_vector, up));
-        up = glm::normalize(glm::cross(left_vector, forward_vector));;
-
-        xpos - RightInput.x > 0 ? xChange = 1 : xChange = -1;
-        ypos - RightInput.y > 0 ? yChange = 1 : yChange = -1;
-
-        glm::quat rotX = glm::angleAxis(glm::radians(2.f * xChange), up);
-        glm::quat rotY = glm::angleAxis(glm::radians(2.f * -yChange), left_vector);
-
-
-        if (abs(xpos - RightInput.x) >= 0.001) *position = *position * rotX;
-        if (abs(ypos - RightInput.y) >= 0.001) *position = *position * rotY;
-
-        Camera->setViewMatrix(glm::lookAt(*position, *center, up));
-        RightInput = glm::vec2(xpos, ypos);
+        activeCamera->rotate(dx, dy);
     }
     if (LeftPressed) {
-        float xChange, yChange;
-        glm::vec3* position = BoxActive ? &BoxPosition : &SharkPosition;
-
-        glm::vec3 forward_vector = glm::normalize(*position - *center);
-        glm::vec3 left_vector = glm::normalize(glm::cross(forward_vector, up));
-        up = glm::normalize(glm::cross(left_vector, forward_vector));;
-
-        xpos - LeftInput.x > 0 ? xChange = -0.02 : xChange = 0.02;
-        ypos - LeftInput.y > 0 ? yChange = 0.04 : yChange = -0.04;
-
-        if (abs(xpos - LeftInput.x) >= 0.001) sceneRoot->transformTranslate(xChange * left_vector);
-        if (abs(ypos - LeftInput.y) >= 0.001) sceneRoot->transformTranslate(yChange * forward_vector);
-        sceneRoot->drawSceneGraph();
-
-        LeftInput = glm::vec2(xpos, ypos);
+        activeCamera->move(dx, dy);
     }
+    MouseInput = glm::vec2(xpos, ypos);
 }
 
 void MyApp::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods, double elapsed) {
@@ -363,25 +324,16 @@ void MyApp::keyCallback(GLFWwindow* window, int key, int scancode, int action, i
     if (key == GLFW_KEY_LEFT) {
         Animations.play(elapsed, true);
     }
-    if (key == GLFW_KEY_C) {
-        if (action == GLFW_PRESS) {
-            BoxActive = !BoxActive;
-            if (BoxActive) {
-                center = &BoxCenter;
-                SharkView = Camera->getViewMatrix();
-                Camera->setViewMatrix(BoxView);
-            }
-            else {
-                center = &SharkCenter;
-                BoxView = Camera->getViewMatrix();
-                Camera->setViewMatrix(SharkView);
-            }
-        }
+    if (key == GLFW_KEY_C && action == GLFW_PRESS) {        
+        BoxActive = !BoxActive;
+        if (BoxActive) activeCamera = boxCamera.get();
+        else activeCamera = sharkCam.get();
+        activeCamera->updateView();
     }
     if (key == GLFW_KEY_P) {
         if (action == GLFW_PRESS) {
             ortho_mode = !ortho_mode;
-            ortho_mode ? Camera->setProjectionMatrix(Ortho_Pro) : Camera->setProjectionMatrix(Pesp_Pro);
+            ortho_mode ? activeCamera->setProjection(Ortho_Pro) : activeCamera->setProjection(Pesp_Pro);
         }
     }
 }
@@ -404,7 +356,7 @@ void MyApp::mouseButtonCallback(GLFWwindow* window, int button, int action, int 
             RightPressed = true;
             double xpos, ypos;
             glfwGetCursorPos(window, &xpos, &ypos);
-            RightInput = glm::vec2(xpos, ypos);
+            MouseInput = glm::vec2(xpos, ypos);
         }if (action == GLFW_RELEASE) {
             RightPressed = false;
         }
@@ -414,16 +366,7 @@ void MyApp::mouseButtonCallback(GLFWwindow* window, int button, int action, int 
 void MyApp::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
     //xoffset parece ser inutil para o nosso projeto
     //aproximar/afastar do centro da camera
-    glm::vec3* position = BoxActive ? &BoxPosition : &SharkPosition;
-    glm::vec3 forward_vector = glm::normalize(*position - *center);
-    if (yoffset < 0) {
-        *position += 0.25f * forward_vector;
-    }
-    else {
-        *position -= 0.25f * forward_vector;
-    }
-    Camera->setViewMatrix(glm::lookAt(*position, *center,
-        up));
+    activeCamera->zoom(yoffset);
 }
 
 /////////////////////////////////////////////////////////////////////////// MAIN

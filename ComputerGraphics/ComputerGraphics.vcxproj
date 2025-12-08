@@ -139,6 +139,7 @@
     <ClCompile Include="..\libraries\mgl\mglCamera.cpp" />
     <ClCompile Include="..\libraries\mgl\mglError.cpp" />
     <ClCompile Include="..\libraries\mgl\mglMesh.cpp" />
+    <ClCompile Include="..\libraries\mgl\mglOrbitCamera.cpp" />
     <ClCompile Include="..\libraries\mgl\mglSceneNode.cpp" />
     <ClCompile Include="..\libraries\mgl\mglShader.cpp" />
     <ClCompile Include="main.cpp" />
@@ -156,6 +157,7 @@
     <ClInclude Include="..\libraries\mgl\mglInstanceRegistry.hpp" />
     <ClInclude Include="..\libraries\mgl\mglMesh.hpp" />
     <ClInclude Include="..\libraries\mgl\mglDrawable.hpp" />
+    <ClInclude Include="..\libraries\mgl\mglOrbitCamera.hpp" />
     <ClInclude Include="..\libraries\mgl\mglSceneNode.hpp" />
     <ClInclude Include="..\libraries\mgl\mglShader.hpp" />
     <ClInclude Include="mglProp.hpp" />

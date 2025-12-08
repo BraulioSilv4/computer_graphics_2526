@@ -25,5 +25,6 @@
 #include "mglDrawable.hpp"
 #include "mglAnimation.hpp"
 #include "mglAnimationGroup.hpp"
+#include "mglOrbitCamera.hpp"
 
 #endif /* MGL_HPP */
