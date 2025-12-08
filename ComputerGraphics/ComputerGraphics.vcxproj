@@ -149,6 +149,7 @@
     <ClInclude Include="..\libraries\mgl\mglAnimationGroup.hpp" />
     <ClInclude Include="..\libraries\mgl\mglApp.hpp" />
     <ClInclude Include="..\libraries\mgl\mglCamera.hpp" />
+    <ClInclude Include="..\libraries\mgl\mglColors.hpp" />
     <ClInclude Include="..\libraries\mgl\mglConventions.hpp" />
     <ClInclude Include="..\libraries\mgl\mglError.hpp" />
     <ClInclude Include="..\libraries\mgl\mglInstanceManager.hpp" />

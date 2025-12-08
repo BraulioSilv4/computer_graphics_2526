@@ -110,6 +110,9 @@
     <ClInclude Include="..\libraries\mgl\mglAnimationGroup.hpp">
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="..\libraries\mgl\mglColors.hpp">
+      <Filter>Header Files\Constants</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cube-fs.glsl">

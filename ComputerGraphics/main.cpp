@@ -103,6 +103,7 @@ void MyApp::createShaderPrograms() {
     Shaders->addAttribute(mgl::TANGENT_ATTRIBUTE, mgl::Mesh::TANGENT);
   }
 
+  Shaders->addUniform(mgl::OBJECT_COLOR);
   Shaders->addUniform(mgl::MODEL_MATRIX);
   Shaders->addUniformBlock(mgl::CAMERA_BLOCK, UBO_BP);
   Shaders->create();
@@ -216,29 +217,36 @@ void MyApp::createSceneGraph() {
     /* Scale whole scene down to be in clip space */
     NodeRegistry.get(mgl::TABLE)->setScale(glm::vec3(0.5f, 0.5f, 0.5f));
     NodeRegistry.get(mgl::TABLE)->setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+    NodeRegistry.get(mgl::TABLE)->setColor(mgl::BROWN);
 
     NodeRegistry.get(mgl::TRIANGLE)->setPosition(glm::vec3(-0.6f, 0.77f, 0.6f));
     NodeRegistry.get(mgl::TRIANGLE)->setRotation(glm::radians(90.f), glm::vec3(1.0f, 0.0f, 0.0f));
+    NodeRegistry.get(mgl::TRIANGLE)->setColor(mgl::LIGHT_BLUE);
 
     NodeRegistry.get(mgl::PARALLELOGRAM)->setPosition(glm::vec3(-0.72f, 0.77f, -0.25f));
     NodeRegistry.get(mgl::PARALLELOGRAM)->setRotation(glm::radians(90.f), glm::vec3(1.0f, 0.0f, 0.0f));
+    NodeRegistry.get(mgl::PARALLELOGRAM)->setColor(mgl::YELLOW);
 
     NodeRegistry.get(mgl::CUBE)->setPosition(glm::vec3(0.0f, 0.77f, 0.47f));
     NodeRegistry.get(mgl::CUBE)->setRotation(glm::radians(90.f), glm::vec3(1.0f, 0.0f, 0.0f));
+    NodeRegistry.get(mgl::CUBE)->setColor(mgl::DARK_PURPLE);
 
     NodeRegistry.get(mgl::MINI_TRIANGLE_1)->setPosition(glm::vec3(-0.31f, 0.77f, 0.0f));
     NodeRegistry.get(mgl::MINI_TRIANGLE_1)->setRotation(glm::radians(90.f), glm::vec3(1.0f, 0.0f, 0.0f));
-    
+    NodeRegistry.get(mgl::MINI_TRIANGLE_1)->setColor(mgl::RED);
+
     NodeRegistry.get(mgl::MINI_TRIANGLE_2)->setPosition(glm::vec3(0.47f, 0.77f, 0.78f));
     NodeRegistry.get(mgl::MINI_TRIANGLE_2)->setRotation(glm::radians(90.f), glm::vec3(1.0f, 0.0f, 0.0f));
+    NodeRegistry.get(mgl::MINI_TRIANGLE_2)->setColor(mgl::BLUE);
 
     NodeRegistry.get(mgl::MAJOR_TRIANGLE_1)->setPosition(glm::vec3(0.62f, 0.77f, 0.0f));
     NodeRegistry.get(mgl::MAJOR_TRIANGLE_1)->setRotation(glm::radians(90.f), glm::vec3(1.0f, 0.0f, 0.0f));
+    NodeRegistry.get(mgl::MAJOR_TRIANGLE_1)->setColor(mgl::ORANGE);
 
     NodeRegistry.get(mgl::MAJOR_TRIANGLE_2)->setPosition(glm::vec3(0.0f, 0.77f, -0.62f));
     NodeRegistry.get(mgl::MAJOR_TRIANGLE_2)->setRotation(glm::radians(90.f), glm::vec3(1.0f, 0.0f, 0.0f));
+    NodeRegistry.get(mgl::MAJOR_TRIANGLE_2)->setColor(mgl::GREEN);
 }
-
 
 ///////////////////////////////////////////////////////////////////////// CAMERA
 
@@ -273,8 +281,6 @@ void MyApp::createCamera() {
 
 
 void MyApp::drawScene(double elapsed) {
-    //NodeRegistry.get(mgl::TRIANGLE)->transformRotate(glm::radians(1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
     Shaders->bind();
     sceneRoot->drawSceneGraph();
     Shaders->unbind();
@@ -336,12 +342,10 @@ void MyApp::cursorCallback(GLFWwindow* window, double xpos, double ypos) {
 }
 
 void MyApp::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods, double elapsed) {
-    std::cout << "Key" << key << "\n" << "Scancode" << scancode << "\n" << "Action" << action << "\n"
-        << "mods" << mods << std::endl;
-    if (scancode == 333) {
+    if (key == GLFW_KEY_RIGHT) {
         Animations.play(elapsed);
     }
-    if (scancode == 331) {
+    if (key == GLFW_KEY_LEFT) {
         Animations.play(elapsed, true);
     }
     /*if (key == GLFW_KEY_LEFT) {
@@ -388,7 +392,7 @@ void MyApp::keyCallback(GLFWwindow* window, int key, int scancode, int action, i
 }
 
 void MyApp::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
-    //probably fazemos com tipo uma flag para o cursor? visto que a posição é separada do click, isto só dá o press/release
+    //probably fazemos com tipo uma flag para o cursor? visto que a posição Eseparada do click, isto sEdEo press/release
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
         //mover pela superficie
         if (action == GLFW_PRESS) {
@@ -407,11 +411,10 @@ void MyApp::mouseButtonCallback(GLFWwindow* window, int button, int action, int 
         }if (action == GLFW_RELEASE) {
             pressed = false;
             glm::vec3* position = BoxActive ? &BoxPosition : &SharkPosition;
-            std::cout << (Camera->getViewMatrix());
+            /*std::cout << (Camera->getViewMatrix());*/
 
         }
     }
-
 }
 
 void MyApp::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {

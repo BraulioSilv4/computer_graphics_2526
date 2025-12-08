@@ -17,8 +17,10 @@ uniform Camera {
 
 void main(void)
 {
+	mat3 NormalMatrix = transpose(inverse(mat3(ModelMatrix)));
+
 	exPosition = inPosition;
-	exNormal = inNormal;
+	exNormal = NormalMatrix * inNormal;
 	exTexcoord = inTexcoord;
 
 	vec4 MCPosition = vec4(inPosition, 1.0);

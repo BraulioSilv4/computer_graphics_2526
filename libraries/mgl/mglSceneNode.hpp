@@ -13,6 +13,7 @@
 
 #include "mglInstanceManager.hpp"
 #include "mglConventions.hpp"
+#include "mglColors.hpp"
 #include "mglShader.hpp"
 #include "mglMesh.hpp"
 
@@ -44,15 +45,22 @@ namespace mgl {
     public:
         using NodeCallback = std::function<void(SceneNode*)>;
 
-        std::string name;
         mgl::Mesh* mesh;
+        std::string name;
+        glm::vec3 color = mgl::RED;
         mgl::ShaderProgram* shaderProgram = nullptr;
         NodeCallback preDrawCallback = [](SceneNode* n) {};
         NodeCallback postDrawCallback = [](SceneNode* n) {};
 
-        SceneNode(std::string _name, mgl::Mesh* _mesh, mgl::ShaderProgram* _shaderProgram = nullptr) {
+        SceneNode(
+            std::string _name,
+            mgl::Mesh* _mesh,
+            mgl::ShaderProgram* _shaderProgram = nullptr,
+            glm::vec3 _color = mgl::RED
+        ) {
             name = _name;
             mesh = _mesh;
+            color = _color;
 			shaderProgram = _shaderProgram;
         }
 
@@ -92,6 +100,9 @@ namespace mgl {
 
         void setMesh(mgl::Mesh* m);
 		mgl::Mesh* getMesh() const;
+
+        void setColor(const glm::vec3& rgb);
+        glm::vec3 getColor() const;
 
 		glm::mat4 getLocalTransform() const;
 

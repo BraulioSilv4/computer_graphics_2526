@@ -107,7 +107,7 @@ void Mesh::processScene(const aiScene *scene) {
   unsigned int n_indices = 0;
   for (unsigned int i = 0; i < Meshes.size(); i++) {
     // Assuming all mesh faces are triangles
-    Meshes[i].nIndices = scene->mMeshes[i]->mNumFaces * 3;
+        Meshes[i].nIndices = scene->mMeshes[i]->mNumFaces * 3;
     Meshes[i].baseVertex = n_vertices;
     Meshes[i].baseIndex = n_indices;
 
@@ -119,6 +119,7 @@ void Mesh::processScene(const aiScene *scene) {
   Texcoords.reserve(n_vertices);
   Indices.reserve(n_indices);
 
+  std::cout << Meshes.size() << std::endl;
   for (unsigned int i = 0; i < Meshes.size(); i++) {
     processMesh(scene->mMeshes[i]);
   }

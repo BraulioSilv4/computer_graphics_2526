@@ -11,8 +11,15 @@ namespace mgl {
 
 		ShaderProgram* shaderProgram = SceneNode::getShaderProgram();
 		if(shaderProgram) {
+			/* Setting constant object color */
+			GLint objectColorLocation = glGetUniformLocation(shaderProgram->ProgramId, OBJECT_COLOR);
+			glUniform3fv(objectColorLocation, 1, glm::value_ptr(color));
+			
+			/* Setting model matrix based on current node data plus parent transformation */
 			GLint modelMatrixLocation = glGetUniformLocation(shaderProgram->ProgramId, MODEL_MATRIX);
 			glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, glm::value_ptr(worldTransform));
+
+			/* Drawing object */
 			mesh->draw();
 		}
 
@@ -95,32 +102,19 @@ namespace mgl {
 
 
 	/* Getters and Setters */
-	glm::vec3 SceneNode::getTranslation() const {
-		return translation;
-	}
+	glm::vec3 SceneNode::getTranslation() const { return translation; }
+	glm::vec3 SceneNode::getScale() const { return scaling; }
+	glm::quat SceneNode::getOrientation() const { return orientation; }
 
-	glm::vec3 SceneNode::getScale() const {
-		return scaling;
-	}
+	void SceneNode::setMesh(Mesh* m) { mesh = m; }
+	Mesh* SceneNode::getMesh() const { return mesh; }
 
-	glm::quat SceneNode::getOrientation() const {
-		return orientation;
-	}
+	void SceneNode::setColor(const glm::vec3& rgb) { color = rgb; }
+	glm::vec3 SceneNode::getColor() const { return color; }
 
-	void SceneNode::setMesh(Mesh* m) {
-		mesh = m;
-	}
-	Mesh* SceneNode::getMesh() const {
-		return mesh;
-	}
+	glm::mat4 SceneNode::getLocalTransform() const { return localTransform; }
 
-	glm::mat4 SceneNode::getLocalTransform() const {
-		return localTransform;
-	}
-
-	void SceneNode::setShaderProgram(ShaderProgram* sp) {
-		shaderProgram = sp;
-	}
+	void SceneNode::setShaderProgram(ShaderProgram* sp) { shaderProgram = sp; }
 	ShaderProgram* SceneNode::getShaderProgram() const {
 		if (hasShaderProgram()) {
 			return shaderProgram;
@@ -136,7 +130,5 @@ namespace mgl {
 		}
 	}
 
-	std::string SceneNode::getID() const {
-		return name;
-	};
+	std::string SceneNode::getID() const { return name; }
 } // namespace mgl
