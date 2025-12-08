@@ -32,8 +32,8 @@ private:
   glm::vec3 BoxCenter = glm::vec3(0.0f,0.2f,0.0f), SharkCenter = glm::vec3(0.0f,1.0f,0.0f), * center = &BoxCenter;
   glm::vec3 BoxPosition = glm::vec3(5.0f, 5.0f, 5.0f), SharkPosition = glm::vec3(-5.0f, 5.0f, -5.0f);
   glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-  glm::vec2 mouseInput = glm::vec2(0);
-  bool pressed = false;
+  glm::vec2 RightInput = glm::vec2(0),LeftInput = glm::vec2(0);
+  bool RightPressed = false,LeftPressed = false;
   bool BoxActive = true;
   glm::mat4 BoxView;
   glm::mat4 SharkView;
@@ -316,29 +316,44 @@ void MyApp::displayCallback(GLFWwindow *win, double elapsed) {
 }
 
 void MyApp::cursorCallback(GLFWwindow* window, double xpos, double ypos) {
-    if (pressed) {
+    if (RightPressed) {
         float xChange, yChange;
         glm::vec3* position = BoxActive ? &BoxPosition : &SharkPosition;
 
         glm::vec3 forward_vector = glm::normalize(*position - *center);
         glm::vec3 left_vector = glm::normalize(glm::cross(forward_vector, up));
-        glm::vec3 up_vector = glm::normalize(glm::cross(left_vector, forward_vector));
-        left_vector = glm::normalize(glm::cross(forward_vector, up_vector));
+        up = glm::normalize(glm::cross(left_vector, forward_vector));;
 
-        xpos - mouseInput.x > 0 ? xChange = 1 : xChange = -1;
-        ypos - mouseInput.y > 0 ? yChange = 1 : yChange = -1;
+        xpos - RightInput.x > 0 ? xChange = 1 : xChange = -1;
+        ypos - RightInput.y > 0 ? yChange = 1 : yChange = -1;
 
-        glm::quat rotX = glm::angleAxis(glm::radians(2.5f * xChange), up_vector);
-        glm::quat rotY = glm::angleAxis(glm::radians(2.5f * -yChange), left_vector);
+        glm::quat rotX = glm::angleAxis(glm::radians(2.f * xChange), up);
+        glm::quat rotY = glm::angleAxis(glm::radians(2.f * -yChange), left_vector);
 
 
-        if (abs(xpos - mouseInput.x) >= 0.001) *position = *position * rotX;
-        if (abs(ypos - mouseInput.y) >= 0.001) *position = *position * rotY;
+        if (abs(xpos - RightInput.x) >= 0.001) *position = *position * rotX;
+        if (abs(ypos - RightInput.y) >= 0.001) *position = *position * rotY;
 
         Camera->setViewMatrix(glm::lookAt(*position, *center, up));
-        mouseInput = glm::vec2(xpos, ypos);
+        RightInput = glm::vec2(xpos, ypos);
     }
+    if (LeftPressed) {
+        float xChange, yChange;
+        glm::vec3* position = BoxActive ? &BoxPosition : &SharkPosition;
 
+        glm::vec3 forward_vector = glm::normalize(*position - *center);
+        glm::vec3 left_vector = glm::normalize(glm::cross(forward_vector, up));
+        up = glm::normalize(glm::cross(left_vector, forward_vector));;
+
+        xpos - LeftInput.x > 0 ? xChange = -0.02 : xChange = 0.02;
+        ypos - LeftInput.y > 0 ? yChange = 0.04 : yChange = -0.04;
+
+        if (abs(xpos - LeftInput.x) >= 0.001) sceneRoot->transformTranslate(xChange * left_vector);
+        if (abs(ypos - LeftInput.y) >= 0.001) sceneRoot->transformTranslate(yChange * forward_vector);
+        sceneRoot->drawSceneGraph();
+
+        LeftInput = glm::vec2(xpos, ypos);
+    }
 }
 
 void MyApp::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods, double elapsed) {
@@ -348,27 +363,8 @@ void MyApp::keyCallback(GLFWwindow* window, int key, int scancode, int action, i
     if (key == GLFW_KEY_LEFT) {
         Animations.play(elapsed, true);
     }
-    /*if (key == GLFW_KEY_LEFT) {
-        if (action == GLFW_PRESS) {
-            std::cout << "press <-" << std::endl;
-            //animaÁ„o a caminho da forma caixa
-        }if (action == GLFW_RELEASE) {
-            std::cout << "release <-" << std::endl;
-            //para a animaÁ„o
-        }
-    }
-    if (key == GLFW_KEY_RIGHT) {
-        if (action == GLFW_PRESS) {
-            std::cout << "press ->" << std::endl;
-            //animaÁ„o a caminho da forma tubar„o
-        }if (action == GLFW_RELEASE) {
-            std::cout << "release ->" << std::endl;
-            //para a animaÁ„o
-        }
-    }*/
     if (key == GLFW_KEY_C) {
         if (action == GLFW_PRESS) {
-            std::cout << "press c" << std::endl;
             BoxActive = !BoxActive;
             if (BoxActive) {
                 center = &BoxCenter;
@@ -384,7 +380,6 @@ void MyApp::keyCallback(GLFWwindow* window, int key, int scancode, int action, i
     }
     if (key == GLFW_KEY_P) {
         if (action == GLFW_PRESS) {
-            std::cout << "press p" << std::endl;
             ortho_mode = !ortho_mode;
             ortho_mode ? Camera->setProjectionMatrix(Ortho_Pro) : Camera->setProjectionMatrix(Pesp_Pro);
         }
@@ -392,27 +387,26 @@ void MyApp::keyCallback(GLFWwindow* window, int key, int scancode, int action, i
 }
 
 void MyApp::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
-    //probably fazemos com tipo uma flag para o cursor? visto que a posiÁ„o ÅEseparada do click, isto sÅEdÅEo press/release
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
         //mover pela superficie
         if (action == GLFW_PRESS) {
-            std::cout << "press left mouse" << std::endl;
+            LeftPressed = true;
+            double xpos, ypos;
+            glfwGetCursorPos(window, &xpos, &ypos);
+            LeftInput = glm::vec2(xpos, ypos);
         }if (action == GLFW_RELEASE) {
-            std::cout << "release left mouse" << std::endl;
+            LeftPressed = false;
         }
     }
     else {
         //mover a camera
         if (action == GLFW_PRESS) {
-            pressed = true;
+            RightPressed = true;
             double xpos, ypos;
             glfwGetCursorPos(window, &xpos, &ypos);
-            mouseInput = glm::vec2(xpos, ypos);
+            RightInput = glm::vec2(xpos, ypos);
         }if (action == GLFW_RELEASE) {
-            pressed = false;
-            glm::vec3* position = BoxActive ? &BoxPosition : &SharkPosition;
-            /*std::cout << (Camera->getViewMatrix());*/
-
+            RightPressed = false;
         }
     }
 }
