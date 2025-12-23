@@ -23,8 +23,9 @@
 #include "mglInstanceRegistry.hpp"
 #include "mglProp.hpp"
 #include "mglDrawable.hpp"
-#include "mglAnimation.hpp"
-#include "mglAnimationGroup.hpp"
+//#include "mglAnimation.hpp"k
+//#include "mglAnimationGroup.hpp"
 #include "mglOrbitCamera.hpp"
+#include "mglTexture.hpp"
 
 #endif /* MGL_HPP */

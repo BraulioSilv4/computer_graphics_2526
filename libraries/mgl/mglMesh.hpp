@@ -19,6 +19,7 @@
 
 #include "mglDrawable.hpp"
 #include "mglInstanceManager.hpp"
+#include "mglTexture.hpp"
 
 namespace mgl {
 
@@ -74,8 +75,11 @@ private:
     unsigned int nIndices = 0;
     unsigned int baseIndex = 0;
     unsigned int baseVertex = 0;
+    unsigned int materialIndex = 0;
   };
+
   std::vector<MeshData> Meshes;
+  std::vector<Texture*> Textures;
 
   std::vector<glm::vec3> Positions;
   std::vector<glm::vec3> Normals;
@@ -89,6 +93,7 @@ private:
   void clear();
   void processScene(const aiScene *scene);
   void processMesh(const aiMesh *mesh);
+  void loadMaterials(const aiScene *scene, const std::string& filename);
   void createBufferObjects();
   void destroyBufferObjects();
 };

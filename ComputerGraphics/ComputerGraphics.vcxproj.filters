@@ -66,6 +66,12 @@
     <ClCompile Include="..\libraries\mgl\mglAnimationGroup.cpp">
       <Filter>Source Files\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="..\libraries\mgl\mglOrbitCamera.cpp">
+      <Filter>Source Files\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\mgl\mglTexture.cpp">
+      <Filter>Source Files\Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\libraries\mgl\mgl.hpp">
@@ -112,6 +118,15 @@
     </ClInclude>
     <ClInclude Include="..\libraries\mgl\mglColors.hpp">
       <Filter>Header Files\Constants</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\stb\stb_image.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\mgl\mglOrbitCamera.hpp">
+      <Filter>Header Files\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\mgl\mglTexture.hpp">
+      <Filter>Header Files\Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

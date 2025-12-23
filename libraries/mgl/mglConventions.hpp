@@ -13,6 +13,7 @@ namespace mgl {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+const char DIFFUSE_SAMPLER[] = "diffSampler";
 const char OBJECT_COLOR[] = "objectColor";
 const char MODEL_MATRIX[] = "ModelMatrix";
 const char NORMAL_MATRIX[] = "NormalMatrix";

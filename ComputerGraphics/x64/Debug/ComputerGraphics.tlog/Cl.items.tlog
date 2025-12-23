@@ -1,6 +1,11 @@
-C:\Users\Naoshi\source\repos\BraulioSilv4\computer_graphics_2526\libraries\mgl\mglApp.cpp;C:\Users\Naoshi\source\repos\BraulioSilv4\computer_graphics_2526\ComputerGraphics\x64\Debug\mglApp.obj
-C:\Users\Naoshi\source\repos\BraulioSilv4\computer_graphics_2526\libraries\mgl\mglCamera.cpp;C:\Users\Naoshi\source\repos\BraulioSilv4\computer_graphics_2526\ComputerGraphics\x64\Debug\mglCamera.obj
-C:\Users\Naoshi\source\repos\BraulioSilv4\computer_graphics_2526\libraries\mgl\mglError.cpp;C:\Users\Naoshi\source\repos\BraulioSilv4\computer_graphics_2526\ComputerGraphics\x64\Debug\mglError.obj
-C:\Users\Naoshi\source\repos\BraulioSilv4\computer_graphics_2526\libraries\mgl\mglMesh.cpp;C:\Users\Naoshi\source\repos\BraulioSilv4\computer_graphics_2526\ComputerGraphics\x64\Debug\mglMesh.obj
-C:\Users\Naoshi\source\repos\BraulioSilv4\computer_graphics_2526\libraries\mgl\mglShader.cpp;C:\Users\Naoshi\source\repos\BraulioSilv4\computer_graphics_2526\ComputerGraphics\x64\Debug\mglShader.obj
-C:\Users\Naoshi\source\repos\BraulioSilv4\computer_graphics_2526\ComputerGraphics\mesh-loader.cpp;C:\Users\Naoshi\source\repos\BraulioSilv4\computer_graphics_2526\ComputerGraphics\x64\Debug\mesh-loader.obj
+C:\Users\Naoshi\source\repos\computer_graphics_2526\libraries\mgl\mglAnimation.cpp;C:\Users\Naoshi\source\repos\computer_graphics_2526\ComputerGraphics\x64\Debug\mglAnimation.obj
+C:\Users\Naoshi\source\repos\computer_graphics_2526\libraries\mgl\mglAnimationGroup.cpp;C:\Users\Naoshi\source\repos\computer_graphics_2526\ComputerGraphics\x64\Debug\mglAnimationGroup.obj
+C:\Users\Naoshi\source\repos\computer_graphics_2526\libraries\mgl\mglApp.cpp;C:\Users\Naoshi\source\repos\computer_graphics_2526\ComputerGraphics\x64\Debug\mglApp.obj
+C:\Users\Naoshi\source\repos\computer_graphics_2526\libraries\mgl\mglCamera.cpp;C:\Users\Naoshi\source\repos\computer_graphics_2526\ComputerGraphics\x64\Debug\mglCamera.obj
+C:\Users\Naoshi\source\repos\computer_graphics_2526\libraries\mgl\mglError.cpp;C:\Users\Naoshi\source\repos\computer_graphics_2526\ComputerGraphics\x64\Debug\mglError.obj
+C:\Users\Naoshi\source\repos\computer_graphics_2526\libraries\mgl\mglMesh.cpp;C:\Users\Naoshi\source\repos\computer_graphics_2526\ComputerGraphics\x64\Debug\mglMesh.obj
+C:\Users\Naoshi\source\repos\computer_graphics_2526\libraries\mgl\mglOrbitCamera.cpp;C:\Users\Naoshi\source\repos\computer_graphics_2526\ComputerGraphics\x64\Debug\mglOrbitCamera.obj
+C:\Users\Naoshi\source\repos\computer_graphics_2526\libraries\mgl\mglSceneNode.cpp;C:\Users\Naoshi\source\repos\computer_graphics_2526\ComputerGraphics\x64\Debug\mglSceneNode.obj
+C:\Users\Naoshi\source\repos\computer_graphics_2526\libraries\mgl\mglShader.cpp;C:\Users\Naoshi\source\repos\computer_graphics_2526\ComputerGraphics\x64\Debug\mglShader.obj
+C:\Users\Naoshi\source\repos\computer_graphics_2526\libraries\mgl\mglTexture.cpp;C:\Users\Naoshi\source\repos\computer_graphics_2526\ComputerGraphics\x64\Debug\mglTexture.obj
+C:\Users\Naoshi\source\repos\computer_graphics_2526\ComputerGraphics\main.cpp;C:\Users\Naoshi\source\repos\computer_graphics_2526\ComputerGraphics\x64\Debug\main.obj

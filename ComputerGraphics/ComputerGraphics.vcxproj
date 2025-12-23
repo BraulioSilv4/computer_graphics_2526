@@ -102,7 +102,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)libraries\assimp\include;$(SolutionDir)libraries\glm;$(SolutionDir)libraries\glew\include;$(SolutionDir)libraries\glfw\include;$(SolutionDir)libraries\mgl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)libraries\assimp\include;$(SolutionDir)libraries\glm;$(SolutionDir)libraries\glew\include;$(SolutionDir)libraries\glfw\include;$(SolutionDir)libraries\mgl;$(SolutionDir)libraries\stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -142,6 +142,7 @@
     <ClCompile Include="..\libraries\mgl\mglOrbitCamera.cpp" />
     <ClCompile Include="..\libraries\mgl\mglSceneNode.cpp" />
     <ClCompile Include="..\libraries\mgl\mglShader.cpp" />
+    <ClCompile Include="..\libraries\mgl\mglTexture.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -160,6 +161,8 @@
     <ClInclude Include="..\libraries\mgl\mglOrbitCamera.hpp" />
     <ClInclude Include="..\libraries\mgl\mglSceneNode.hpp" />
     <ClInclude Include="..\libraries\mgl\mglShader.hpp" />
+    <ClInclude Include="..\libraries\mgl\mglTexture.hpp" />
+    <ClInclude Include="..\libraries\stb\stb_image.h" />
     <ClInclude Include="mglProp.hpp" />
   </ItemGroup>
   <ItemGroup>
