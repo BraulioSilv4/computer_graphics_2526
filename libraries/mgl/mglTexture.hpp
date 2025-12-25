@@ -12,7 +12,7 @@ public:
 	}
 
 	/* Loads the texture from file */
-	bool load();
+	bool load(bool isSRGB);
 
 	/* Bind texture to activate it */
 	void bind(GLenum textureUnit);

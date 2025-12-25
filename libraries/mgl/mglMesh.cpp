@@ -9,6 +9,7 @@
 #include "./mglMesh.hpp"
 
 #include <iostream>
+#include <mglConventions.hpp>
 
 namespace mgl {
 
@@ -105,7 +106,7 @@ void Mesh::clear() {
 
 void Mesh::processScene(const aiScene *scene) {
   Meshes.resize(scene->mNumMeshes);
-  Textures.resize(scene->mNumMaterials);
+  Materials.resize(scene->mNumMaterials);
 
   unsigned int n_vertices = 0;
   unsigned int n_indices = 0;
@@ -130,50 +131,167 @@ void Mesh::processScene(const aiScene *scene) {
   }
 }
 
+std::string getFilePathFromDirectory(const std::string& directory, const aiString& file) {
+    std::string filePath(file.data);
+    return directory + "\\" + filePath;
+}
+
+std::string getDirectoryFromFile(const std::string filename) {
+    std::string::size_type slashIndex = filename.find_last_of("/\\");
+    switch (slashIndex) {
+        case std::string::npos:
+            return ".";
+            break;
+
+        case 0:
+            return filename.substr(0, 1);
+            break;
+
+        default:
+            return filename.substr(0, slashIndex);
+    }
+}
+
 void Mesh::loadMaterials(const aiScene* scene, const std::string& filename) {
     /* "..\\assets\\models\\Cube\\cube_with_materials.obj" */
-    std::string::size_type slashIndex = filename.find_last_of("/\\");
-    std::string directory;
-
-    if (slashIndex == std::string::npos) {
-        directory = ".";
-    }
-    else if (slashIndex == 0) {
-        directory = filename[slashIndex];
-    }
-    else {
-        directory = filename.substr(0, slashIndex);
-    }
+    std::string directory = getDirectoryFromFile(filename);
 
     for (unsigned int i = 0; i < scene->mNumMaterials; i++) {
         /* Container for multiple textues such as diffuse, normal map, roughness etc */
         const aiMaterial* material = scene->mMaterials[i];
+        Materials[i].name = material->GetName().C_Str();
 
-        Textures[i] = NULL;
+        loadTextures(directory, material, i);
+        loadMaterialParameters(material, i);
+    }
+}
 
-        if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
-            aiString path;
+void Mesh::loadTextures(const std::string& directory, const aiMaterial* material, int idx) {
+    /* Currently only works with obj files */
+    loadAlbedoTex(directory, material, idx);
+    loadRoughnessTex(directory, material, idx);
+    loadMetallicTex(directory, material, idx);
+    loadNormalMapTex(directory, material, idx);
+}
 
-            if (material->GetTexture(aiTextureType_DIFFUSE, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
-                std::string texturePath(path.data);
+void Mesh::loadAlbedoTex(const std::string& directory, const aiMaterial* material, int idx) {
+    if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
+        aiString path;
 
-                if (texturePath.substr(0, 2) == ".\\") {
-                    texturePath = texturePath.substr(2, texturePath.size() - 2);
-                }
-
-                std::string fullPath = directory + "\\" + texturePath;
-
-                Textures[i] = new Texture(GL_TEXTURE_2D, fullPath.c_str());
-
-                if (!Textures[i]->load()) {
-                    std::cout << "Error loading texture: " << fullPath.c_str() << std::endl;
-                    delete Textures[i];
-                    Textures[i] = NULL;
-                } else {
-                    std::cout << "Loaded texture: " << fullPath.c_str() << std::endl;
-                }
-            }
+        if (material->GetTexture(aiTextureType_DIFFUSE, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
+            loadAlbedoTexFromFile(directory, path, idx);
         }
+    }
+}
+
+void Mesh::loadAlbedoTexFromFile(const std::string& directory, const aiString& path, int idx) {
+    std::string texPath = getFilePathFromDirectory(directory, path);
+    Materials[idx].matTex.texAlbedo = new Texture(GL_TEXTURE_2D, texPath.c_str());
+
+    bool isSRGB = true;
+
+    if (!Materials[idx].matTex.texAlbedo->load(isSRGB)) {
+        std::cout << "Error loading texture: " << texPath << std::endl;
+        exit(0);
+    }
+
+    std::cout << "Loaded Albedo Texture: " << texPath.c_str();
+}
+
+void Mesh::loadRoughnessTex(const std::string& directory, const aiMaterial* material, int idx) {
+    if (material->GetTextureCount(aiTextureType_DIFFUSE_ROUGHNESS) > 0) {
+        aiString path;
+
+        if (material->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
+            loadRoughnessTexFromFile(directory, path, idx);
+        }
+    }
+}
+
+void Mesh::loadRoughnessTexFromFile(const std::string& directory, const aiString& path, int idx) {
+    std::string texPath = getFilePathFromDirectory(directory, path);
+    Materials[idx].matTex.texRoughness = new Texture(GL_TEXTURE_2D, texPath.c_str());
+
+    bool isSRGB = false;
+
+    if (!Materials[idx].matTex.texRoughness->load(isSRGB)) {
+        std::cout << "Error loading texture: " << texPath << std::endl;
+        exit(0);
+    }
+
+    std::cout << "Loaded Roughness Texture: " << texPath.c_str();
+}
+
+void Mesh::loadMetallicTex(const std::string& directory, const aiMaterial* material, int idx) {
+    if (material->GetTextureCount(aiTextureType_METALNESS) > 0) {
+        aiString path;
+
+        if (material->GetTexture(aiTextureType_METALNESS, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
+            loadMetallicTexFromFile(directory, path, idx);
+        }
+    }
+}
+
+void Mesh::loadMetallicTexFromFile(const std::string& directory, const aiString& path, int idx) {
+    std::string texPath = getFilePathFromDirectory(directory, path);
+    Materials[idx].matTex.texMetallic = new Texture(GL_TEXTURE_2D, texPath.c_str());
+
+    bool isSRGB = false;
+
+    if (!Materials[idx].matTex.texMetallic->load(isSRGB)) {
+        std::cout << "Error loading texture: " << texPath << std::endl;
+        exit(0);
+    }
+
+    std::cout << "Loaded Metallic Texture: " << texPath.c_str();
+}
+
+void Mesh::loadNormalMapTex(const std::string& directory, const aiMaterial* material, int idx) {
+    int numNormals = material->GetTextureCount(aiTextureType_NORMALS);
+    int numHeight = material->GetTextureCount(aiTextureType_HEIGHT);
+
+    aiString path;
+    if (numNormals > 0) {
+        if (material->GetTexture(aiTextureType_NORMALS, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
+            loadNormalMapTexFromFile(directory, path, idx);
+        }
+    }
+    else if (numHeight > 0) {
+        if (material->GetTexture(aiTextureType_HEIGHT, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
+            loadNormalMapTexFromFile(directory, path, idx);
+        }
+    }
+}
+
+void Mesh::loadNormalMapTexFromFile(const std::string& directory, const aiString& path, int idx) {
+    std::string texPath = getFilePathFromDirectory(directory, path);
+    Materials[idx].matTex.texNormalMap = new Texture(GL_TEXTURE_2D, texPath.c_str());
+
+    bool isSRGB = false;
+
+    if (!Materials[idx].matTex.texNormalMap->load(isSRGB)) {
+        std::cout << "Error loading texture: " << texPath << std::endl;
+        exit(0);
+    }
+
+    std::cout << "Loaded Normal Map Texture: " << texPath.c_str();
+}
+
+void Mesh::loadMaterialParameters(const aiMaterial* material, int idx) {
+    if (material->Get(AI_MATKEY_METALLIC_FACTOR, Materials[idx].matProps.metallic) == AI_SUCCESS) {
+        std::cout << "Pm " << Materials[idx].matProps.metallic << std::endl;
+    }
+
+    if (material->Get(AI_MATKEY_ROUGHNESS_FACTOR, Materials[idx].matProps.roughness) == AI_SUCCESS) {
+        std::cout << "Pr " << Materials[idx].matProps.roughness << std::endl;
+    }
+
+    if (material->Get(AI_MATKEY_CLEARCOAT_FACTOR, Materials[idx].matProps.clearcoat) == AI_SUCCESS) {
+        std::cout << "Pc " << Materials[idx].matProps.clearcoat << std::endl;
+    }
+
+    if (material->Get(AI_MATKEY_CLEARCOAT_FACTOR, Materials[idx].matProps.clearcoatRoughness) == AI_SUCCESS) {
+        std::cout << "Pcr " << Materials[idx].matProps.clearcoatRoughness<< std::endl;
     }
 }
 
@@ -269,15 +387,31 @@ void Mesh::destroyBufferObjects() {
   glBindVertexArray(0);
 }
 
+void Mesh::bindMaterialsTextures(int materialIdx) {
+    if (Materials[materialIdx].matTex.texAlbedo) {
+        Materials[materialIdx].matTex.texAlbedo->bind(ALBEDO_TEXTURE_UNIT); /* Albedo to texture0_unit */
+    }
+
+    if (Materials[materialIdx].matTex.texMetallic) {
+        Materials[materialIdx].matTex.texMetallic->bind(METALLIC_TEXTURE_UNIT); /* Metallic to texture1_unit */
+    }
+
+    if (Materials[materialIdx].matTex.texNormalMap) {
+        Materials[materialIdx].matTex.texNormalMap->bind(NORMAL_TEXTURE_UNIT); /* Normal map to texture2_unit */
+    }
+
+    if (Materials[materialIdx].matTex.texRoughness) {
+        Materials[materialIdx].matTex.texRoughness->bind(ROUGHNESS_TEXTURE_UNIT); /* Roughness map to texture3_unit */
+    }
+}
+
 void Mesh::draw() {
     glBindVertexArray(VaoId);
 
     for (MeshData &mesh : Meshes) {
         unsigned int materialIndex = mesh.materialIndex;
 
-        if (Textures[materialIndex]) {
-            Textures[materialIndex]->bind(GL_TEXTURE0); /* Texture to texture0_unit */
-        }
+        bindMaterialsTextures(materialIndex);
 
         glDrawElementsBaseVertex(
             GL_TRIANGLES, 

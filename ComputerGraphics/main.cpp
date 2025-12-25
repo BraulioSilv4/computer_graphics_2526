@@ -88,12 +88,23 @@ void MyApp::createShaderPrograms() {
   }
 
   Shaders->addUniform(mgl::DIFFUSE_SAMPLER);
+  Shaders->addUniform(mgl::NORMAL_SAMPLER);
+  Shaders->addUniform(mgl::METAL_SAMPLER);
+  Shaders->addUniform(mgl::ROUGH_SAMPLER);
+  //Shaders->addUniform(mgl::HEIGHT_SAMPLER);
+
   Shaders->addUniform(mgl::OBJECT_COLOR);
   Shaders->addUniform(mgl::MODEL_MATRIX);
   Shaders->addUniformBlock(mgl::CAMERA_BLOCK, UBO_BP);
   Shaders->create();
 
-  glUniform1i(glGetUniformLocation(Shaders->ProgramId, mgl::DIFFUSE_SAMPLER), 0);
+  /* Assigning texture units to samplers */
+  Shaders->bind();
+  glUniform1i(Shaders->Uniforms[mgl::DIFFUSE_SAMPLER].index, mgl::ALBEDO_UNIT_INDEX);
+  glUniform1i(Shaders->Uniforms[mgl::ROUGH_SAMPLER].index, mgl::ROUGHNESS_UNIT_INDEX);
+  glUniform1i(Shaders->Uniforms[mgl::METAL_SAMPLER].index, mgl::METALLIC_UNIT_INDEX);
+  glUniform1i(Shaders->Uniforms[mgl::NORMAL_SAMPLER].index, mgl::NORMAL_UNIT_INDEX);
+  Shaders->unbind();
   ModelMatrixId = Shaders->Uniforms[mgl::MODEL_MATRIX].index;
 }
 
@@ -134,6 +145,9 @@ void MyApp::createCamera() {
 void MyApp::drawScene(double elapsed) {
     Shaders->bind();
     sceneRoot->drawSceneGraph();
+    sceneRoot->transformRotate(glm::radians(1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    sceneRoot->transformRotate(glm::radians(0.5f), glm::vec3(1.0f, 0.0f, 0.0f));
+    sceneRoot->transformRotate(glm::radians(0.2f), glm::vec3(0.0f, 0.0f, 1.0f));
     Shaders->unbind();
 }
 

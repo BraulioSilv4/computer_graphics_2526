@@ -156,6 +156,7 @@
     <ClInclude Include="..\libraries\mgl\mglError.hpp" />
     <ClInclude Include="..\libraries\mgl\mglInstanceManager.hpp" />
     <ClInclude Include="..\libraries\mgl\mglInstanceRegistry.hpp" />
+    <ClInclude Include="..\libraries\mgl\mglMaterial.hpp" />
     <ClInclude Include="..\libraries\mgl\mglMesh.hpp" />
     <ClInclude Include="..\libraries\mgl\mglDrawable.hpp" />
     <ClInclude Include="..\libraries\mgl\mglOrbitCamera.hpp" />

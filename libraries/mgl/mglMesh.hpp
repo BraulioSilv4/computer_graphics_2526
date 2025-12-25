@@ -20,6 +20,7 @@
 #include "mglDrawable.hpp"
 #include "mglInstanceManager.hpp"
 #include "mglTexture.hpp"
+#include "mglMaterial.hpp"
 
 namespace mgl {
 
@@ -79,6 +80,7 @@ private:
   };
 
   std::vector<MeshData> Meshes;
+  std::vector<Material> Materials;
   std::vector<Texture*> Textures;
 
   std::vector<glm::vec3> Positions;
@@ -91,9 +93,31 @@ private:
   std::vector<unsigned int> Indices;
 
   void clear();
+  
   void processScene(const aiScene *scene);
   void processMesh(const aiMesh *mesh);
+
   void loadMaterials(const aiScene *scene, const std::string& filename);
+  
+  void loadTextures(const std::string& directory, const aiMaterial* material, int materialIdx);
+
+  /* PBR texture loading */
+  void loadAlbedoTex(const std::string& directory, const aiMaterial* material, int materialIdx);
+  void loadAlbedoTexFromFile(const std::string& directory, const aiString& path, int materialIdx);
+  
+  void loadRoughnessTex(const std::string& directory, const aiMaterial* material, int materialIdx);
+  void loadRoughnessTexFromFile(const std::string& directory, const aiString& path, int materialIdx);
+  
+  void loadMetallicTex(const std::string& directory, const aiMaterial* material, int materialIdx);
+  void loadMetallicTexFromFile(const std::string& directory, const aiString& path, int materialIdx);
+  
+  void loadNormalMapTex(const std::string& directory, const aiMaterial* material, int materialIdx);
+  void loadNormalMapTexFromFile(const std::string& directory, const aiString& path, int materialIdx);
+
+  void loadMaterialParameters(const aiMaterial* material, int materialIdx);
+
+  void bindMaterialsTextures(int materialIdx);
+
   void createBufferObjects();
   void destroyBufferObjects();
 };
