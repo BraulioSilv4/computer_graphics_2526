@@ -67,4 +67,8 @@ glm::vec3 OrbitCamera::getCenter() const {
 	return center;
 }
 
+mgl::Camera* OrbitCamera::getCamera() const {
+	return camera;
+}
+
 }

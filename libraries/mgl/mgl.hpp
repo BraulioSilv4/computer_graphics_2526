@@ -27,5 +27,8 @@
 //#include "mglAnimationGroup.hpp"
 #include "mglOrbitCamera.hpp"
 #include "mglTexture.hpp"
+#include "mglCubeMapTexture.hpp"
+#include "mglSkyBox.hpp"
+#include "mglFrameBuffer.hpp"
 
 #endif /* MGL_HPP */

@@ -43,6 +43,7 @@ namespace mgl {
 
 		glm::vec3 getPosition() const;
 		glm::vec3 getCenter() const;
+		mgl::Camera* getCamera() const;
 	};
 
 }

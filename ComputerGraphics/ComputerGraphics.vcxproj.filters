@@ -72,6 +72,15 @@
     <ClCompile Include="..\libraries\mgl\mglTexture.cpp">
       <Filter>Source Files\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="..\libraries\mgl\mglCubeMapTexture.cpp">
+      <Filter>Source Files\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\mgl\mglSkyBox.cpp">
+      <Filter>Source Files\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\mgl\mglFrameBuffer.cpp">
+      <Filter>Source Files\Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\libraries\mgl\mgl.hpp">
@@ -131,12 +140,39 @@
     <ClInclude Include="..\libraries\mgl\mglMaterial.hpp">
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="..\libraries\mgl\mglCubeMapTexture.hpp">
+      <Filter>Header Files\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\mgl\mglSkyBox.hpp">
+      <Filter>Header Files\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\mgl\mglFrameBuffer.hpp">
+      <Filter>Header Files\Scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cube-fs.glsl">
       <Filter>Source Files\Shaders</Filter>
     </None>
     <None Include="cube-vs.glsl">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="skybox-fs.glsl">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="skybox-vs.glsl">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="light-fs.glsl">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="light-vs.glsl">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="framebuffer-fs.glsl">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="framebuffer-vs.glsl">
       <Filter>Source Files\Shaders</Filter>
     </None>
   </ItemGroup>

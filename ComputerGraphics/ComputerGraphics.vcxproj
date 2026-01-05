@@ -137,11 +137,14 @@
     <ClCompile Include="..\libraries\mgl\mglAnimationGroup.cpp" />
     <ClCompile Include="..\libraries\mgl\mglApp.cpp" />
     <ClCompile Include="..\libraries\mgl\mglCamera.cpp" />
+    <ClCompile Include="..\libraries\mgl\mglCubeMapTexture.cpp" />
     <ClCompile Include="..\libraries\mgl\mglError.cpp" />
+    <ClCompile Include="..\libraries\mgl\mglFrameBuffer.cpp" />
     <ClCompile Include="..\libraries\mgl\mglMesh.cpp" />
     <ClCompile Include="..\libraries\mgl\mglOrbitCamera.cpp" />
     <ClCompile Include="..\libraries\mgl\mglSceneNode.cpp" />
     <ClCompile Include="..\libraries\mgl\mglShader.cpp" />
+    <ClCompile Include="..\libraries\mgl\mglSkyBox.cpp" />
     <ClCompile Include="..\libraries\mgl\mglTexture.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
@@ -153,7 +156,9 @@
     <ClInclude Include="..\libraries\mgl\mglCamera.hpp" />
     <ClInclude Include="..\libraries\mgl\mglColors.hpp" />
     <ClInclude Include="..\libraries\mgl\mglConventions.hpp" />
+    <ClInclude Include="..\libraries\mgl\mglCubeMapTexture.hpp" />
     <ClInclude Include="..\libraries\mgl\mglError.hpp" />
+    <ClInclude Include="..\libraries\mgl\mglFrameBuffer.hpp" />
     <ClInclude Include="..\libraries\mgl\mglInstanceManager.hpp" />
     <ClInclude Include="..\libraries\mgl\mglInstanceRegistry.hpp" />
     <ClInclude Include="..\libraries\mgl\mglMaterial.hpp" />
@@ -162,6 +167,7 @@
     <ClInclude Include="..\libraries\mgl\mglOrbitCamera.hpp" />
     <ClInclude Include="..\libraries\mgl\mglSceneNode.hpp" />
     <ClInclude Include="..\libraries\mgl\mglShader.hpp" />
+    <ClInclude Include="..\libraries\mgl\mglSkyBox.hpp" />
     <ClInclude Include="..\libraries\mgl\mglTexture.hpp" />
     <ClInclude Include="..\libraries\stb\stb_image.h" />
     <ClInclude Include="mglProp.hpp" />
@@ -169,6 +175,12 @@
   <ItemGroup>
     <None Include="cube-fs.glsl" />
     <None Include="cube-vs.glsl" />
+    <None Include="framebuffer-fs.glsl" />
+    <None Include="framebuffer-vs.glsl" />
+    <None Include="light-fs.glsl" />
+    <None Include="light-vs.glsl" />
+    <None Include="skybox-fs.glsl" />
+    <None Include="skybox-vs.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

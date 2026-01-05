@@ -41,6 +41,12 @@ bool Texture::load(bool isSRGB) {
 			glTexImage2D(textureTarget, 0, internalFormat, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
 			break;
 
+		case 4:
+			/* 4 channels Albedo */
+			internalFormat = isSRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8;
+			glTexImage2D(textureTarget, 0, internalFormat, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
+			break;
+
 		default:
 			std::cout << "Texture with n-channels not handled..." << std::endl;
 			return false;

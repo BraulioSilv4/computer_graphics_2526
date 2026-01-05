@@ -17,10 +17,8 @@ Camera::Camera(GLuint bindingpoint)
   glGenBuffers(1, &UboId);
   glBindBuffer(GL_UNIFORM_BUFFER, UboId);
   glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, 0, GL_STREAM_DRAW);
-  glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4),
-                  glm::value_ptr(ViewMatrix));
-  glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4),
-                  glm::value_ptr(ProjectionMatrix));
+  glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(ViewMatrix));
+  glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(ProjectionMatrix));
   glBindBufferBase(GL_UNIFORM_BUFFER, bindingpoint, UboId);
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }

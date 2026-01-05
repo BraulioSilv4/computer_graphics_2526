@@ -68,7 +68,7 @@ namespace mgl {
 
         void drawNodeMesh();
 
-        //                                                  when root parent is world (world = eye * local)
+        // when root parent is world (world = eye * local)
         void drawSceneGraph(const glm::mat4& parentTransform = glm::mat4(1.0f));
 
 		/* Child Management Methods */

@@ -81,7 +81,6 @@ private:
 
   std::vector<MeshData> Meshes;
   std::vector<Material> Materials;
-  std::vector<Texture*> Textures;
 
   std::vector<glm::vec3> Positions;
   std::vector<glm::vec3> Normals;

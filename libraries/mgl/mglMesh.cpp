@@ -195,7 +195,7 @@ void Mesh::loadAlbedoTexFromFile(const std::string& directory, const aiString& p
         exit(0);
     }
 
-    std::cout << "Loaded Albedo Texture: " << texPath.c_str();
+    std::cout << "Loaded Albedo Texture: " << texPath.c_str() << std::endl;
 }
 
 void Mesh::loadRoughnessTex(const std::string& directory, const aiMaterial* material, int idx) {
@@ -219,7 +219,7 @@ void Mesh::loadRoughnessTexFromFile(const std::string& directory, const aiString
         exit(0);
     }
 
-    std::cout << "Loaded Roughness Texture: " << texPath.c_str();
+    std::cout << "Loaded Roughness Texture: " << texPath.c_str() << std::endl;
 }
 
 void Mesh::loadMetallicTex(const std::string& directory, const aiMaterial* material, int idx) {
@@ -243,7 +243,7 @@ void Mesh::loadMetallicTexFromFile(const std::string& directory, const aiString&
         exit(0);
     }
 
-    std::cout << "Loaded Metallic Texture: " << texPath.c_str();
+    std::cout << "Loaded Metallic Texture: " << texPath.c_str() << std::endl;
 }
 
 void Mesh::loadNormalMapTex(const std::string& directory, const aiMaterial* material, int idx) {
@@ -274,24 +274,28 @@ void Mesh::loadNormalMapTexFromFile(const std::string& directory, const aiString
         exit(0);
     }
 
-    std::cout << "Loaded Normal Map Texture: " << texPath.c_str();
+    std::cout << "Loaded Normal Map Texture: " << texPath.c_str() << std::endl;
 }
 
 void Mesh::loadMaterialParameters(const aiMaterial* material, int idx) {
     if (material->Get(AI_MATKEY_METALLIC_FACTOR, Materials[idx].matProps.metallic) == AI_SUCCESS) {
-        std::cout << "Pm " << Materials[idx].matProps.metallic << std::endl;
+        std::cout << Materials[idx].name << " Pm " << Materials[idx].matProps.metallic << std::endl;
     }
 
     if (material->Get(AI_MATKEY_ROUGHNESS_FACTOR, Materials[idx].matProps.roughness) == AI_SUCCESS) {
-        std::cout << "Pr " << Materials[idx].matProps.roughness << std::endl;
+        std::cout << Materials[idx].name << " Pr " << Materials[idx].matProps.roughness << std::endl;
+    }
+
+    if (material->Get(AI_MATKEY_SHEEN_COLOR_FACTOR, Materials[idx].matProps.sheen) == AI_SUCCESS) {
+        std::cout << Materials[idx].name << " Ps " << Materials[idx].matProps.sheen << std::endl;
     }
 
     if (material->Get(AI_MATKEY_CLEARCOAT_FACTOR, Materials[idx].matProps.clearcoat) == AI_SUCCESS) {
-        std::cout << "Pc " << Materials[idx].matProps.clearcoat << std::endl;
+        std::cout << Materials[idx].name << " Pc " << Materials[idx].matProps.clearcoat << std::endl;
     }
 
-    if (material->Get(AI_MATKEY_CLEARCOAT_FACTOR, Materials[idx].matProps.clearcoatRoughness) == AI_SUCCESS) {
-        std::cout << "Pcr " << Materials[idx].matProps.clearcoatRoughness<< std::endl;
+    if (material->Get(AI_MATKEY_CLEARCOAT_ROUGHNESS_FACTOR, Materials[idx].matProps.clearcoatRoughness) == AI_SUCCESS) {
+        std::cout << Materials[idx].name << " Pcr " << Materials[idx].matProps.clearcoatRoughness<< std::endl;
     }
 }
 
