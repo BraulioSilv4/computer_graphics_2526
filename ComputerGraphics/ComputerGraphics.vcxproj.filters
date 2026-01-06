@@ -175,5 +175,8 @@
     <None Include="framebuffer-vs.glsl">
       <Filter>Source Files\Shaders</Filter>
     </None>
+    <None Include="pbr-fs.glsl">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

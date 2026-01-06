@@ -48,11 +48,20 @@ void FrameBuffer::resize(unsigned int _width, unsigned int _height) {
 
 		if (frameBufferTexture != 0) {
 			glDeleteTextures(1, &frameBufferTexture);
+			frameBufferTexture = 0;
+		}
+
+		if (RBO != 0) {
+			glDeleteRenderbuffers(1, &RBO);
+			RBO = 0;
 		}
 
 		if (FBO != 0) {
 			glDeleteFramebuffers(1, &FBO);
+			FBO = 0;
 		}
+
+		glGenFramebuffers(1, &FBO);
 
 		createAttachments();
 	}
@@ -66,7 +75,7 @@ void FrameBuffer::createAttachments() {
 	// Create color texture attachment
 	glGenTextures(1, &frameBufferTexture);
 	glBindTexture(GL_TEXTURE_2D, frameBufferTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

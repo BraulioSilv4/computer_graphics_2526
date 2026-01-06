@@ -179,6 +179,7 @@
     <None Include="framebuffer-vs.glsl" />
     <None Include="light-fs.glsl" />
     <None Include="light-vs.glsl" />
+    <None Include="pbr-fs.glsl" />
     <None Include="skybox-fs.glsl" />
     <None Include="skybox-vs.glsl" />
   </ItemGroup>

@@ -52,9 +52,6 @@ bool Texture::load(bool isSRGB) {
 			return false;
 
 		}
-	} else if(textureTarget == GL_TEXTURE_3D) {
-		std::cout << "Cubemaps not implemented yet..";
-		return false;
 	}
 
 	glTexParameterf(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
