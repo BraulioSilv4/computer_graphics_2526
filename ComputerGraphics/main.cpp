@@ -44,21 +44,24 @@ private:
   mgl::Camera *Camera = nullptr;
   std::unique_ptr<mgl::OrbitCamera> boxCamera;
   mgl::OrbitCamera* activeCamera = nullptr;
-  mgl::ShaderProgram* Shaders = nullptr;
-  mgl::ShaderProgram* SkyboxShaders = nullptr;
-  mgl::ShaderProgram* LightShaders = nullptr;
   GLint ModelMatrixId;
   mgl::Manager<mgl::Mesh, std::string> MeshManager;
   mgl::Registry<std::string, mgl::SceneNode*> NodeRegistry;
   
-  /* Frame Buffer variables */
-  FrameBuffer* frameBuffer = nullptr;
+  /* Shader Programs */ 
+  mgl::ShaderProgram* Shaders = nullptr;
+  mgl::ShaderProgram* SkyboxShaders = nullptr;
   mgl::ShaderProgram* frameBufferShader = nullptr;
+  
+  /* Frame Buffer */
+  FrameBuffer* frameBuffer = nullptr;
 
+  /* Scene Nodes*/
   std::unique_ptr<mgl::SceneNode> sceneRoot = nullptr;
-  std::unique_ptr<mgl::SceneNode> sourceLight = nullptr;
-  SkyBox* skybox = new SkyBox();
+  std::unique_ptr<mgl::SceneNode> hdrCube = nullptr;
 
+  /* Textures */ 
+  HDRSkybox* hdrSkybox = nullptr;
 
   void createCamera();
   void createMeshes();
@@ -95,28 +98,11 @@ void MyApp::createMeshes() {
 	plastic->flipUVs();
 	plastic->create(plastic_path);
 
-    std::string light_path = "..\\assets\\models\\Light\\Light.obj";
-    mgl::Mesh* light = new mgl::Mesh();
-    light->generateSmoothNormals();
-    light->calculateTangentSpace();
-    light->joinIdenticalVertices();
-    light->flipUVs();
-    light->create(light_path);
-
     MeshManager.add(std::unique_ptr<mgl::Mesh>(m));
 	MeshManager.add(std::unique_ptr<mgl::Mesh>(brick));
 	MeshManager.add(std::unique_ptr<mgl::Mesh>(plastic));
-    MeshManager.add(std::unique_ptr<mgl::Mesh>(light));
-    
-    //skybox->init(
-    //    "..\\assets\\skybox\\",
-    //    "px.png",
-    //    "nx.png",
-    //    "py.png",
-    //    "ny.png",
-    //    "pz.png",
-    //    "nz.png"
-    //);
+
+	hdrSkybox = new HDRSkybox("..\\assets\\HDR\\qwantani_night_puresky_16k.hdr", nullptr);
 }
 
 ///////////////////////////////////////////////////////////////////////// SHADER
@@ -144,7 +130,6 @@ void MyApp::createShaderPrograms() {
   Shaders->addUniform(mgl::CUBEMAP_SAMPLER);
   Shaders->addUniform(mgl::LIGHT_COLOR);
   Shaders->addUniform(mgl::LIGHT_POSITION);
-  // Shaders->addUniform(mgl::HEIGHT_SAMPLER);
 
   Shaders->addUniform(mgl::MODEL_MATRIX);
   Shaders->addUniform(mgl::CAMERA_POSITION);
@@ -164,38 +149,24 @@ void MyApp::createShaderPrograms() {
 
   ModelMatrixId = Shaders->Uniforms[mgl::MODEL_MATRIX].index;
 
-  //SkyboxShaders = new mgl::ShaderProgram();
-  //SkyboxShaders->addShader(GL_VERTEX_SHADER, "skybox-vs.glsl");
-  //SkyboxShaders->addShader(GL_FRAGMENT_SHADER, "skybox-fs.glsl");
+  SkyboxShaders = new mgl::ShaderProgram();
+  SkyboxShaders->addShader(GL_VERTEX_SHADER, "skybox-vs.glsl");
+  SkyboxShaders->addShader(GL_FRAGMENT_SHADER, "skybox-fs.glsl");
 
-  //SkyboxShaders->addUniform(mgl::CUBEMAP_SAMPLER);
-  //SkyboxShaders->addUniform(mgl::PROJECTION_MATRIX);
-  //SkyboxShaders->addUniform(mgl::VIEW_MATRIX);
-  //SkyboxShaders->addUniform(mgl::GAMMA);
+  SkyboxShaders->addAttribute(mgl::POSITION_ATTRIBUTE, mgl::Mesh::POSITION);
+  SkyboxShaders->addUniform(mgl::CUBEMAP_SAMPLER);
+  SkyboxShaders->addUniform(mgl::PROJECTION_MATRIX);
+  SkyboxShaders->addUniform(mgl::VIEW_MATRIX);
+  SkyboxShaders->addUniform(mgl::GAMMA);
 
-  //SkyboxShaders->create();
+  SkyboxShaders->create();
 
-  ///* Assigning texture units to samplers */
-  //SkyboxShaders->bind();
-  //glUniform1f(SkyboxShaders->Uniforms[mgl::GAMMA].index, gamma);
-  //glUniform1i(SkyboxShaders->Uniforms[mgl::CUBEMAP_SAMPLER].index, mgl::CUBEMAP_UNIT_INDEX);
-  //SkyboxShaders->unbind();
+  SkyboxShaders->bind();
+  glUniform1i(SkyboxShaders->Uniforms[mgl::CUBEMAP_SAMPLER].index, mgl::CUBEMAP_UNIT_INDEX);
+  SkyboxShaders->unbind();
 
-  //skybox->setShaderProgram(SkyboxShaders);
-
-  LightShaders = new mgl::ShaderProgram();
-  LightShaders->addShader(GL_VERTEX_SHADER, "light-vs.glsl");
-  LightShaders->addShader(GL_FRAGMENT_SHADER, "light-fs.glsl");
-
-  LightShaders->addAttribute(mgl::POSITION_ATTRIBUTE, mgl::Mesh::POSITION);
-  LightShaders->addUniform(mgl::MODEL_MATRIX);
-  LightShaders->addUniform(mgl::LIGHT_COLOR);
-  LightShaders->addUniformBlock(mgl::CAMERA_BLOCK, UBO_BP);
-  LightShaders->create();
-
-  LightShaders->bind();
-  glUniform4fv(LightShaders->Uniforms[mgl::LIGHT_COLOR].index, 1, glm::value_ptr(LightColor));
-  LightShaders->unbind();
+  hdrSkybox->setShaderProgram(SkyboxShaders);
+  hdrSkybox->init(); // loads the HDRI texture and creates the cubemap
 }
 
 ///////////////////////////////////////////////////////////////////////// SCENE GRAPH
@@ -226,19 +197,10 @@ void MyApp::createSceneGraph() {
 	root->addChild(std::move(brickChild));
 	root->addChild(std::move(plasticChild));
 
-    auto light = std::make_unique<mgl::SceneNode>(
-        "Light.obj",
-        MeshManager.get("..\\assets\\models\\Light\\Light.obj"),
-        LightShaders
-    );
-
     sceneRoot = std::move(root);
     NodeRegistry.add(mgl::CUBE, sceneRoot.get());
 	NodeRegistry.get("brick_sphere.obj")->setPosition(glm::vec3(2.0f, 0.0f, 0.0f));
 	NodeRegistry.get("plastic_sphere.obj")->setPosition(glm::vec3(-2.0f, 0.0f, 0.0f));
-
-    sourceLight = std::move(light);
-    NodeRegistry.add("Light", sourceLight.get());
 }
 
 ///////////////////////////////////////////////////////////////////////// CAMERA
@@ -289,26 +251,19 @@ void MyApp::createFrameBuffers() {
 
 
 void MyApp::drawScene(double elapsed) {
-    //skybox->getCubeMapTexture()->bind(mgl::CUBEMAP_TEXTURE_UNIT);
-
     Shaders->bind();
 	/* Maybe change this to update the uniform inside OrbitCamera updateView function TODO() */
     glm::vec3 camPos = activeCamera->getPosition();
 	glUniform3fv(Shaders->Uniforms[mgl::CAMERA_POSITION].index, 1, glm::value_ptr(camPos));
 
     sceneRoot->drawSceneGraph();
-    sceneRoot->transformRotate(glm::radians(0.2f), glm::vec3(0.0f, 1.0f, 0.0f));    
+    sceneRoot->transformRotate(glm::radians(0.2f), glm::vec3(0.0f, 1.0f, 0.0f)); 
     
     Shaders->unbind();
 
-	LightShaders->bind();
-    sourceLight->setScale(glm::vec3(0.1f, 0.1f, 0.1f));
-    sourceLight->setPosition(LightPosition);
-    sourceLight->drawSceneGraph();
-	LightShaders->unbind();
-
-    /* This already binds the cubemap shader internally */
-	//skybox->render(*activeCamera->getCamera());
+	SkyboxShaders->bind();
+	hdrSkybox->render(*activeCamera->getCamera());
+	SkyboxShaders->unbind();
 }
 
 ////////////////////////////////////////////////////////////////////// CALLBACKS
@@ -413,7 +368,7 @@ int main(int argc, char *argv[]) {
   mgl::Engine &engine = mgl::Engine::getInstance();
   engine.setApp(new MyApp());
   engine.setOpenGL(4, 6);
-  engine.setWindow(800, 600, "Mesh Loader", 0, 1);
+  engine.setWindow(800, 600, "PBR", 0, 1);
   engine.init();
   engine.run();
   exit(EXIT_SUCCESS);

@@ -23,12 +23,12 @@
 #include "mglInstanceRegistry.hpp"
 #include "mglProp.hpp"
 #include "mglDrawable.hpp"
-//#include "mglAnimation.hpp"k
-//#include "mglAnimationGroup.hpp"
 #include "mglOrbitCamera.hpp"
 #include "mglTexture.hpp"
 #include "mglCubeMapTexture.hpp"
 #include "mglSkyBox.hpp"
 #include "mglFrameBuffer.hpp"
+#include "mglHDRITexture.hpp"
+#include "mglHDRSkybox.hpp"
 
 #endif /* MGL_HPP */

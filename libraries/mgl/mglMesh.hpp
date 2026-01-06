@@ -113,6 +113,12 @@ private:
   void loadNormalMapTex(const std::string& directory, const aiMaterial* material, int materialIdx);
   void loadNormalMapTexFromFile(const std::string& directory, const aiString& path, int materialIdx);
 
+ /* void loadAOTex(const std::string& directory, const aiMaterial* material, int materialIdx);
+  void loadAOTexFromFile(const std::string& directory, const aiString& path, int materialIdx);
+
+  void loadDisplacementTex(const std::string& directory, const aiMaterial* material, int materialIdx);
+  void loadDisplacementTexFromFile(const std::string& directory, const aiString& path, int materialIdx);*/
+
   void loadMaterialParameters(const aiMaterial* material, int materialIdx);
 
   void bindMaterialsTextures(int materialIdx);

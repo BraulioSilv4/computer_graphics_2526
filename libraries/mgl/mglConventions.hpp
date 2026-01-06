@@ -22,6 +22,7 @@ const char METAL_SAMPLER[] = "metalSampler";
 const char HEIGHT_SAMPLER[] = "heightSampler";
 const char CUBEMAP_SAMPLER[] = "cubeMapSampler";
 const char SCREEN_TEXTUERE_SAMPLER[] = "screenSampler";
+const char EQUIRECTANGULAR_SAMPLER[] = "equirectangularSampler";
 
 const char OBJECT_COLOR[] = "objectColor";
 const char MODEL_MATRIX[] = "ModelMatrix";
@@ -41,6 +42,9 @@ const char TEXCOORD_ATTRIBUTE[] = "inTexcoord";
 const char TANGENT_ATTRIBUTE[] = "inTangent";
 const char BITANGENT_ATTRIBUTE[] = "inBitangent";
 const char COLOR_ATTRIBUTE[] = "inColor";
+
+constexpr unsigned int EQUIRECTANGULAR_TEXTURE_UNIT = GL_TEXTURE6;
+constexpr unsigned int EQUIRECTANGULAR_UNIT_INDEX = 6;
 
 constexpr unsigned int SCREEN_TEXTURE_UNIT = GL_TEXTURE0;
 constexpr unsigned int SCREEN_TEXTURE_UNIT_INDEX = 0;

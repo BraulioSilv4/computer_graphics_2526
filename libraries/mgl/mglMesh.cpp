@@ -172,15 +172,17 @@ void Mesh::loadTextures(const std::string& directory, const aiMaterial* material
     loadRoughnessTex(directory, material, idx);
     loadMetallicTex(directory, material, idx);
     loadNormalMapTex(directory, material, idx);
+	//loadAOTex(directory, material, idx);
+	//loadDisplacementTex(directory, material, idx);
 }
 
-void Mesh::loadAlbedoTex(const std::string& directory, const aiMaterial* material, int idx) {
-    if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
-        aiString path;
-
-        if (material->GetTexture(aiTextureType_DIFFUSE, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
-            loadAlbedoTexFromFile(directory, path, idx);
-        }
+void Mesh::loadAlbedoTex(const std::string& directory, const aiMaterial* material, int idx) {    
+    aiString path;
+    
+    if (material->GetTexture(aiTextureType_BASE_COLOR, 0, &path) == AI_SUCCESS) {
+        loadAlbedoTexFromFile(directory, path, idx);
+    } else if (material->GetTexture(aiTextureType_DIFFUSE, 0, &path) == AI_SUCCESS) {
+        loadAlbedoTexFromFile(directory, path, idx);
     }
 }
 
@@ -199,12 +201,10 @@ void Mesh::loadAlbedoTexFromFile(const std::string& directory, const aiString& p
 }
 
 void Mesh::loadRoughnessTex(const std::string& directory, const aiMaterial* material, int idx) {
-    if (material->GetTextureCount(aiTextureType_DIFFUSE_ROUGHNESS) > 0) {
-        aiString path;
+    aiString path;
 
-        if (material->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
-            loadRoughnessTexFromFile(directory, path, idx);
-        }
+    if (material->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &path) == AI_SUCCESS) {
+        loadRoughnessTexFromFile(directory, path, idx);
     }
 }
 
@@ -223,12 +223,10 @@ void Mesh::loadRoughnessTexFromFile(const std::string& directory, const aiString
 }
 
 void Mesh::loadMetallicTex(const std::string& directory, const aiMaterial* material, int idx) {
-    if (material->GetTextureCount(aiTextureType_METALNESS) > 0) {
-        aiString path;
+    aiString path;
 
-        if (material->GetTexture(aiTextureType_METALNESS, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
-            loadMetallicTexFromFile(directory, path, idx);
-        }
+    if (material->GetTexture(aiTextureType_METALNESS, 0, &path) == AI_SUCCESS) {
+        loadMetallicTexFromFile(directory, path, idx);
     }
 }
 
@@ -247,20 +245,14 @@ void Mesh::loadMetallicTexFromFile(const std::string& directory, const aiString&
 }
 
 void Mesh::loadNormalMapTex(const std::string& directory, const aiMaterial* material, int idx) {
-    int numNormals = material->GetTextureCount(aiTextureType_NORMALS);
-    int numHeight = material->GetTextureCount(aiTextureType_HEIGHT);
-
     aiString path;
-    if (numNormals > 0) {
-        if (material->GetTexture(aiTextureType_NORMALS, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
-            loadNormalMapTexFromFile(directory, path, idx);
-        }
+
+    if (material->GetTexture(aiTextureType_NORMALS, 0, &path) == AI_SUCCESS) {
+        loadNormalMapTexFromFile(directory, path, idx);
+    } else if (material->GetTexture(aiTextureType_HEIGHT, 0, &path) == AI_SUCCESS) {
+        loadNormalMapTexFromFile(directory, path, idx);
     }
-    else if (numHeight > 0) {
-        if (material->GetTexture(aiTextureType_HEIGHT, 0, &path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
-            loadNormalMapTexFromFile(directory, path, idx);
-        }
-    }
+
 }
 
 void Mesh::loadNormalMapTexFromFile(const std::string& directory, const aiString& path, int idx) {
@@ -276,6 +268,10 @@ void Mesh::loadNormalMapTexFromFile(const std::string& directory, const aiString
 
     std::cout << "Loaded Normal Map Texture: " << texPath.c_str() << std::endl;
 }
+
+//void Mesh::loadAlbedoTex(const std::string& directory, const aiMaterial& material, int idx) {
+//
+//}
 
 void Mesh::loadMaterialParameters(const aiMaterial* material, int idx) {
     if (material->Get(AI_MATKEY_METALLIC_FACTOR, Materials[idx].matProps.metallic) == AI_SUCCESS) {

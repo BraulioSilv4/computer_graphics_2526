@@ -140,6 +140,8 @@
     <ClCompile Include="..\libraries\mgl\mglCubeMapTexture.cpp" />
     <ClCompile Include="..\libraries\mgl\mglError.cpp" />
     <ClCompile Include="..\libraries\mgl\mglFrameBuffer.cpp" />
+    <ClCompile Include="..\libraries\mgl\mglHDRITexture.cpp" />
+    <ClCompile Include="..\libraries\mgl\mglHDRSkybox.cpp" />
     <ClCompile Include="..\libraries\mgl\mglMesh.cpp" />
     <ClCompile Include="..\libraries\mgl\mglOrbitCamera.cpp" />
     <ClCompile Include="..\libraries\mgl\mglSceneNode.cpp" />
@@ -159,6 +161,8 @@
     <ClInclude Include="..\libraries\mgl\mglCubeMapTexture.hpp" />
     <ClInclude Include="..\libraries\mgl\mglError.hpp" />
     <ClInclude Include="..\libraries\mgl\mglFrameBuffer.hpp" />
+    <ClInclude Include="..\libraries\mgl\mglHDRITexture.hpp" />
+    <ClInclude Include="..\libraries\mgl\mglHDRSkybox.hpp" />
     <ClInclude Include="..\libraries\mgl\mglInstanceManager.hpp" />
     <ClInclude Include="..\libraries\mgl\mglInstanceRegistry.hpp" />
     <ClInclude Include="..\libraries\mgl\mglMaterial.hpp" />
@@ -177,8 +181,8 @@
     <None Include="cube-vs.glsl" />
     <None Include="framebuffer-fs.glsl" />
     <None Include="framebuffer-vs.glsl" />
-    <None Include="light-fs.glsl" />
-    <None Include="light-vs.glsl" />
+    <None Include="hdr_to_cubemap-fs.glsl" />
+    <None Include="hdr_to_cubemap-vs.glsl" />
     <None Include="pbr-fs.glsl" />
     <None Include="skybox-fs.glsl" />
     <None Include="skybox-vs.glsl" />

@@ -11,12 +11,16 @@ namespace mgl {
 
 		ShaderProgram* shaderProgram = SceneNode::getShaderProgram();
 		if(shaderProgram) {
-			/* Setting model matrix based on current node data plus parent transformation */
+			shaderProgram->bind();
+
+			///* Setting model matrix based on current node data plus parent transformation */
 			GLint modelMatrixLocation = glGetUniformLocation(shaderProgram->ProgramId, MODEL_MATRIX);
 			glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, glm::value_ptr(worldTransform));
 
 			/* Drawing object */
 			mesh->draw();
+
+			shaderProgram->unbind();
 		}
 
 		this->postDrawCallback(this);

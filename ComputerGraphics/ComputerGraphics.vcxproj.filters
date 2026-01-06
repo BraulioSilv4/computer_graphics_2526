@@ -69,9 +69,6 @@
     <ClCompile Include="..\libraries\mgl\mglOrbitCamera.cpp">
       <Filter>Source Files\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="..\libraries\mgl\mglTexture.cpp">
-      <Filter>Source Files\Scene</Filter>
-    </ClCompile>
     <ClCompile Include="..\libraries\mgl\mglCubeMapTexture.cpp">
       <Filter>Source Files\Scene</Filter>
     </ClCompile>
@@ -79,6 +76,15 @@
       <Filter>Source Files\Scene</Filter>
     </ClCompile>
     <ClCompile Include="..\libraries\mgl\mglFrameBuffer.cpp">
+      <Filter>Source Files\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\mgl\mglTexture.cpp">
+      <Filter>Source Files\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\mgl\mglHDRITexture.cpp">
+      <Filter>Source Files\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\mgl\mglHDRSkybox.cpp">
       <Filter>Source Files\Scene</Filter>
     </ClCompile>
   </ItemGroup>
@@ -149,6 +155,12 @@
     <ClInclude Include="..\libraries\mgl\mglFrameBuffer.hpp">
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="..\libraries\mgl\mglHDRITexture.hpp">
+      <Filter>Header Files\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\mgl\mglHDRSkybox.hpp">
+      <Filter>Header Files\Scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cube-fs.glsl">
@@ -163,12 +175,6 @@
     <None Include="skybox-vs.glsl">
       <Filter>Source Files\Shaders</Filter>
     </None>
-    <None Include="light-fs.glsl">
-      <Filter>Source Files\Shaders</Filter>
-    </None>
-    <None Include="light-vs.glsl">
-      <Filter>Source Files\Shaders</Filter>
-    </None>
     <None Include="framebuffer-fs.glsl">
       <Filter>Source Files\Shaders</Filter>
     </None>
@@ -176,6 +182,12 @@
       <Filter>Source Files\Shaders</Filter>
     </None>
     <None Include="pbr-fs.glsl">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="hdr_to_cubemap-fs.glsl">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="hdr_to_cubemap-vs.glsl">
       <Filter>Source Files\Shaders</Filter>
     </None>
   </ItemGroup>

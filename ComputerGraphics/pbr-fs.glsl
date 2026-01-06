@@ -24,7 +24,7 @@ out vec4 FragmentColor;
 
 
 /********************* Uniform Inputs *****************************/
-uniform samplerCube cubeMapSampler;
+//uniform samplerCube cubeMapSampler;
 uniform sampler2D diffSampler;      // Albedo
 uniform sampler2D normalSampler;
 uniform sampler2D roughSampler;     // Roughness
@@ -171,6 +171,19 @@ vec3 F_fresnelSchlick(float HdotV, vec3 F0) {
 }
 
 
+/*
+ * Cook-Torrance BRDF Function
+ *
+ * Param F: Fresnel term.
+ * Param NDF: Normal Distribution Function term.
+ * Param G: Geometry Function term.
+ * Param L: Light direction vector.
+ * Param V: View direction vector.
+ * Param N: Surface normal vector.
+ *
+ * Combines the Fresnel, Normal Distribution, and Geometry functions
+ * to compute the specular reflection component of the BRDF.
+ */
 vec3 BRDF_cookTorrance(vec3 F, float NDF, float G, vec3 L, vec3 V, vec3 N) {
     vec3 num = NDF * F * G;
     float denum = 4.0 * max(dot(V, N), 0.0) * max(dot(L, N), 0.0) + 0.0001; 
@@ -210,7 +223,7 @@ void main(void)
     TBN = buildTBN();
 
     // PBR Materials
-    albedo = texture(diffSampler, exTexcoord);    
+    albedo = texture(diffSampler, exTexcoord);      
     roughness = texture(roughSampler, exTexcoord).r;
     metalness = texture(metalSampler, exTexcoord).r;
     F0 = mix(vec3(0.04), albedo.rgb, metalness); // Interpolate based on metalness values (metal = 1.0)

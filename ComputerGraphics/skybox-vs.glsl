@@ -2,13 +2,15 @@
 
 layout(location = 1) in vec3 inPosition;
 
-out vec3 exTexcoord;
-
-uniform mat4 ViewMatrix;
 uniform mat4 ProjectionMatrix;
+uniform mat4 ViewMatrix;
+
+out vec3 exPosition;
 
 void main() {
-	vec4 pos = ProjectionMatrix * ViewMatrix * vec4(inPosition, 1.0);
+	exPosition = inPosition;
+
+	mat4 rotView = mat4(mat3(ViewMatrix));
+	vec4 pos = ProjectionMatrix * rotView * vec4(inPosition, 1.0);
 	gl_Position = pos.xyww;
-	exTexcoord = vec3(inPosition.x, inPosition.y, -inPosition.z);	
 }
