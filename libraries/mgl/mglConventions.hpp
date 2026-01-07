@@ -23,6 +23,10 @@ const char HEIGHT_SAMPLER[] = "heightSampler";
 const char CUBEMAP_SAMPLER[] = "cubeMapSampler";
 const char SCREEN_TEXTUERE_SAMPLER[] = "screenSampler";
 const char EQUIRECTANGULAR_SAMPLER[] = "equirectangularSampler";
+const char ENVIRONMENT_SAMPLER[] = "environmentSampler";
+const char IRRADIANCE_SAMPLER[] = "irradianceSampler";
+const char BRDDF_LUT_SAMPLER[] = "brdfLUTSampler";
+const char PREFILTERED_ENV_SAMPLER[] = "prefilteredEnvSampler";
 
 const char OBJECT_COLOR[] = "objectColor";
 const char MODEL_MATRIX[] = "ModelMatrix";
@@ -34,7 +38,10 @@ const char CAMERA_BLOCK[] = "Camera";
 const char CAMERA_POSITION[] = "CameraPosition";
 const char LIGHT_COLOR[] = "LightColor";
 const char LIGHT_POSITION[] = "LightPosition";
+const char CUBEMAP_RESOLUTION[] = "cubemapRes";
+const char ROUGHNESS[] = "roughness";
 const char GAMMA[] = "gamma";
+const char EXPOSURE[] = "exposure";
 
 const char POSITION_ATTRIBUTE[] = "inPosition";
 const char NORMAL_ATTRIBUTE[] = "inNormal";
@@ -43,8 +50,11 @@ const char TANGENT_ATTRIBUTE[] = "inTangent";
 const char BITANGENT_ATTRIBUTE[] = "inBitangent";
 const char COLOR_ATTRIBUTE[] = "inColor";
 
-constexpr unsigned int EQUIRECTANGULAR_TEXTURE_UNIT = GL_TEXTURE6;
-constexpr unsigned int EQUIRECTANGULAR_UNIT_INDEX = 6;
+constexpr unsigned int ENVIRONMENT_TEXTURE_UNIT = GL_TEXTURE0;
+constexpr unsigned int ENVIRONMENT_UNIT_INDEX = 0;
+
+constexpr unsigned int EQUIRECTANGULAR_TEXTURE_UNIT = GL_TEXTURE0;
+constexpr unsigned int EQUIRECTANGULAR_UNIT_INDEX = 0;
 
 constexpr unsigned int SCREEN_TEXTURE_UNIT = GL_TEXTURE0;
 constexpr unsigned int SCREEN_TEXTURE_UNIT_INDEX = 0;
@@ -66,6 +76,15 @@ constexpr unsigned int HEIGHT_UNIT_INDEX = 4;
 
 constexpr unsigned int CUBEMAP_TEXTURE_UNIT = GL_TEXTURE5;
 constexpr unsigned int CUBEMAP_UNIT_INDEX = 5;
+
+constexpr unsigned int IRRADIANCE_TEXTURE_UNIT = GL_TEXTURE6;
+constexpr unsigned int IRRADIANCE_UNIT_INDEX = 6;
+
+constexpr unsigned int BRDDF_LUT_TEXTURE_UNIT = GL_TEXTURE7;
+constexpr unsigned int BRDDF_LUT_UNIT_INDEX = 7;
+
+constexpr unsigned int PREFILTERED_ENV_TEXTURE_UNIT = GL_TEXTURE8;
+constexpr unsigned int PREFILTERED_ENV_UNIT_INDEX = 8;
 
 ////////////////////////////////////////////////////////////////////////////////
 } // namespace mgl

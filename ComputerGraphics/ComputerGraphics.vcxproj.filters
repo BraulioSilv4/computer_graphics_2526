@@ -190,5 +190,26 @@
     <None Include="hdr_to_cubemap-vs.glsl">
       <Filter>Source Files\Shaders</Filter>
     </None>
+    <None Include="convolution-fs.glsl">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="convolution-vs.glsl">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="prefilter_convolution-fs.glsl">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="prefilter_convolution-vs.glsl">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="brdf_convolution-fs.glsl">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="brdf_convolution-vs.glsl">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="show-texture-fs.glsl">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

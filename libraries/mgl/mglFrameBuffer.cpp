@@ -136,6 +136,8 @@ void FrameBuffer::render() {
 	glDisable(GL_CULL_FACE);
 
 	frameBufferShader->bind();
+	glUniform1f(frameBufferShader->Uniforms[mgl::GAMMA].index, gamma);
+	glUniform1f(frameBufferShader->Uniforms[mgl::EXPOSURE].index, exposure);
 	
 	glBindVertexArray(quadVAO);
 	

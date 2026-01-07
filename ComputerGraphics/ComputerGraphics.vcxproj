@@ -177,6 +177,10 @@
     <ClInclude Include="mglProp.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="brdf_convolution-fs.glsl" />
+    <None Include="brdf_convolution-vs.glsl" />
+    <None Include="convolution-fs.glsl" />
+    <None Include="convolution-vs.glsl" />
     <None Include="cube-fs.glsl" />
     <None Include="cube-vs.glsl" />
     <None Include="framebuffer-fs.glsl" />
@@ -184,6 +188,9 @@
     <None Include="hdr_to_cubemap-fs.glsl" />
     <None Include="hdr_to_cubemap-vs.glsl" />
     <None Include="pbr-fs.glsl" />
+    <None Include="prefilter_convolution-fs.glsl" />
+    <None Include="prefilter_convolution-vs.glsl" />
+    <None Include="show-texture-fs.glsl" />
     <None Include="skybox-fs.glsl" />
     <None Include="skybox-vs.glsl" />
   </ItemGroup>

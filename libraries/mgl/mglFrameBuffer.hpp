@@ -24,6 +24,11 @@ public:
 	unsigned int getWidth() const { return width; }
 	unsigned int getHeight() const { return height; }
 
+	float getExposure() const { return exposure; }
+	void setExposure(float _exposure) { exposure = _exposure; }
+	float getGamma() const { return gamma; }
+	void setGamma(float _gamma) { gamma = _gamma; }
+
 private:
 	unsigned int FBO;
 	unsigned int RBO;
@@ -32,6 +37,9 @@ private:
 
 	unsigned int quadVAO;
 	unsigned int quadVBO;
+
+	float exposure = 1.0f;
+	float gamma = 2.2f;
 
 	mgl::ShaderProgram* frameBufferShader;
 

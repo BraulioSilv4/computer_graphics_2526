@@ -38,7 +38,6 @@ private:
   glm::mat4 Pesp_Pro = glm::perspective(glm::radians(30.0f), 640.0f / 480.0f, 0.1f, 100.0f);
   glm::vec4 LightColor = glm::vec4(20.0f, 10.0f, 10.0f, 1.0f);
   glm::vec3 LightPosition = glm::vec3(3.0f, 0.0f, 3.0f);
-  float gamma = 2.2f;
 
   const GLuint UBO_BP = 0;
   mgl::Camera *Camera = nullptr;
@@ -47,6 +46,10 @@ private:
   GLint ModelMatrixId;
   mgl::Manager<mgl::Mesh, std::string> MeshManager;
   mgl::Registry<std::string, mgl::SceneNode*> NodeRegistry;
+
+  // debug shader to visualize arbitrary textures (BRDF LUT)
+  mgl::ShaderProgram* debugShader = nullptr;
+  bool showBRDF = false; // toggle display of BRDF LUT
   
   /* Shader Programs */ 
   mgl::ShaderProgram* Shaders = nullptr;
@@ -82,7 +85,7 @@ void MyApp::createMeshes() {
     m->flipUVs();
     m->create(mesh_path);
 
-    std::string brick_path = "..\\assets\\models\\Sphere\\brick_sphere.obj";
+    std::string brick_path = "..\\assets\\models\\Sphere\\plastic_sphere.obj";
     mgl::Mesh* brick = new mgl::Mesh();
     brick->generateSmoothNormals();
     brick->calculateTangentSpace();
@@ -90,7 +93,7 @@ void MyApp::createMeshes() {
     brick->flipUVs();
     brick->create(brick_path);
 
-	std::string plastic_path = "..\\assets\\models\\Sphere\\plastic_sphere.obj";
+	std::string plastic_path = "..\\assets\\models\\Sphere\\moss.obj";
 	mgl::Mesh* plastic = new mgl::Mesh();
 	plastic->generateSmoothNormals();
 	plastic->calculateTangentSpace();
@@ -102,12 +105,33 @@ void MyApp::createMeshes() {
 	MeshManager.add(std::unique_ptr<mgl::Mesh>(brick));
 	MeshManager.add(std::unique_ptr<mgl::Mesh>(plastic));
 
-	hdrSkybox = new HDRSkybox("..\\assets\\HDR\\qwantani_night_puresky_16k.hdr", nullptr);
+	hdrSkybox = new HDRSkybox("..\\assets\\HDR\\pine_attic_8k.hdr", nullptr);
 }
 
 ///////////////////////////////////////////////////////////////////////// SHADER
 
 void MyApp::createShaderPrograms() {
+  SkyboxShaders = new mgl::ShaderProgram();
+  SkyboxShaders->addShader(GL_VERTEX_SHADER, "skybox-vs.glsl");
+  SkyboxShaders->addShader(GL_FRAGMENT_SHADER, "skybox-fs.glsl");
+
+  SkyboxShaders->addAttribute(mgl::POSITION_ATTRIBUTE, mgl::Mesh::POSITION);
+  SkyboxShaders->addUniform(mgl::EQUIRECTANGULAR_SAMPLER);
+  SkyboxShaders->addUniform(mgl::CUBEMAP_SAMPLER);
+  SkyboxShaders->addUniform(mgl::PROJECTION_MATRIX);
+  SkyboxShaders->addUniform(mgl::VIEW_MATRIX);
+
+  SkyboxShaders->create();
+
+  SkyboxShaders->bind();
+  glUniform1i(SkyboxShaders->Uniforms[mgl::CUBEMAP_SAMPLER].index, mgl::CUBEMAP_UNIT_INDEX);
+  glUniform1i(SkyboxShaders->Uniforms[mgl::EQUIRECTANGULAR_SAMPLER].index, mgl::EQUIRECTANGULAR_UNIT_INDEX);
+  glUniform1i(SkyboxShaders->Uniforms[mgl::CUBEMAP_SAMPLER].index, mgl::CUBEMAP_UNIT_INDEX);
+  SkyboxShaders->unbind();
+
+  hdrSkybox->setShaderProgram(SkyboxShaders);
+  hdrSkybox->init(); // loads the HDRI texture and creates the cubemap
+
   Shaders = new mgl::ShaderProgram();
   Shaders->addShader(GL_VERTEX_SHADER, "cube-vs.glsl");
   Shaders->addShader(GL_FRAGMENT_SHADER, "pbr-fs.glsl");
@@ -128,8 +152,10 @@ void MyApp::createShaderPrograms() {
   Shaders->addUniform(mgl::METAL_SAMPLER);
   Shaders->addUniform(mgl::ROUGH_SAMPLER);
   Shaders->addUniform(mgl::CUBEMAP_SAMPLER);
-  Shaders->addUniform(mgl::LIGHT_COLOR);
-  Shaders->addUniform(mgl::LIGHT_POSITION);
+  Shaders->addUniform(mgl::IRRADIANCE_SAMPLER);
+  Shaders->addUniform(mgl::PREFILTERED_ENV_SAMPLER);
+  Shaders->addUniform(mgl::BRDDF_LUT_SAMPLER);
+
 
   Shaders->addUniform(mgl::MODEL_MATRIX);
   Shaders->addUniform(mgl::CAMERA_POSITION);
@@ -143,30 +169,30 @@ void MyApp::createShaderPrograms() {
   glUniform1i(Shaders->Uniforms[mgl::METAL_SAMPLER].index, mgl::METALLIC_UNIT_INDEX);
   glUniform1i(Shaders->Uniforms[mgl::NORMAL_SAMPLER].index, mgl::NORMAL_UNIT_INDEX);
   glUniform1i(Shaders->Uniforms[mgl::CUBEMAP_SAMPLER].index, mgl::CUBEMAP_UNIT_INDEX);
-  glUniform4fv(Shaders->Uniforms[mgl::LIGHT_COLOR].index, 1, glm::value_ptr(LightColor));
-  glUniform3fv(Shaders->Uniforms[mgl::LIGHT_POSITION].index, 1, glm::value_ptr(LightPosition));
+
+  hdrSkybox->bindIrradianceMap(mgl::IRRADIANCE_TEXTURE_UNIT);
+  hdrSkybox->bindBRDFLUTTexture(mgl::BRDDF_LUT_TEXTURE_UNIT);
+  hdrSkybox->bindPrefilteredEnvMap(mgl::PREFILTERED_ENV_TEXTURE_UNIT);
+  glUniform1i(Shaders->Uniforms[mgl::IRRADIANCE_SAMPLER].index, mgl::IRRADIANCE_UNIT_INDEX);
+  glUniform1i(Shaders->Uniforms[mgl::BRDDF_LUT_SAMPLER].index, mgl::BRDDF_LUT_UNIT_INDEX);
+  glUniform1i(Shaders->Uniforms[mgl::PREFILTERED_ENV_SAMPLER].index, mgl::PREFILTERED_ENV_UNIT_INDEX);
+ 
   Shaders->unbind();
 
   ModelMatrixId = Shaders->Uniforms[mgl::MODEL_MATRIX].index;
 
-  SkyboxShaders = new mgl::ShaderProgram();
-  SkyboxShaders->addShader(GL_VERTEX_SHADER, "skybox-vs.glsl");
-  SkyboxShaders->addShader(GL_FRAGMENT_SHADER, "skybox-fs.glsl");
 
-  SkyboxShaders->addAttribute(mgl::POSITION_ATTRIBUTE, mgl::Mesh::POSITION);
-  SkyboxShaders->addUniform(mgl::CUBEMAP_SAMPLER);
-  SkyboxShaders->addUniform(mgl::PROJECTION_MATRIX);
-  SkyboxShaders->addUniform(mgl::VIEW_MATRIX);
-  SkyboxShaders->addUniform(mgl::GAMMA);
+  debugShader = new mgl::ShaderProgram();
+  debugShader->addShader(GL_VERTEX_SHADER, "framebuffer-vs.glsl");
+  debugShader->addShader(GL_FRAGMENT_SHADER, "show-texture-fs.glsl");
+  debugShader->addAttribute(mgl::POSITION_ATTRIBUTE, 0);
+  debugShader->addAttribute(mgl::TEXCOORD_ATTRIBUTE, 1);
+  debugShader->addUniform("tex"); // we'll set this to the BRDF LUT sampler unit
+  debugShader->create();
 
-  SkyboxShaders->create();
-
-  SkyboxShaders->bind();
-  glUniform1i(SkyboxShaders->Uniforms[mgl::CUBEMAP_SAMPLER].index, mgl::CUBEMAP_UNIT_INDEX);
-  SkyboxShaders->unbind();
-
-  hdrSkybox->setShaderProgram(SkyboxShaders);
-  hdrSkybox->init(); // loads the HDRI texture and creates the cubemap
+  debugShader->bind();
+  glUniform1i(debugShader->Uniforms["tex"].index, mgl::BRDDF_LUT_UNIT_INDEX);
+  debugShader->unbind();
 }
 
 ///////////////////////////////////////////////////////////////////////// SCENE GRAPH
@@ -182,25 +208,25 @@ void MyApp::createSceneGraph() {
 
     auto brickChild = std::make_unique<mgl::SceneNode>(
         "brick_sphere.obj",
-        MeshManager.get("..\\assets\\models\\Sphere\\brick_sphere.obj"),
+        MeshManager.get("..\\assets\\models\\Sphere\\plastic_sphere.obj"),
         Shaders
     );
 
     auto plasticChild = std::make_unique<mgl::SceneNode>(
         "plastic_sphere.obj",
-        MeshManager.get("..\\assets\\models\\Sphere\\plastic_sphere.obj"),
+        MeshManager.get("..\\assets\\models\\Sphere\\moss.obj"),
         Shaders
 	);
 
-	NodeRegistry.add("plastic_sphere.obj", plasticChild.get());
-    NodeRegistry.add("brick_sphere.obj", brickChild.get());
+	NodeRegistry.add("moss.obj", plasticChild.get());
+    NodeRegistry.add("plastic_sphere.obj", brickChild.get());
 	root->addChild(std::move(brickChild));
 	root->addChild(std::move(plasticChild));
 
     sceneRoot = std::move(root);
     NodeRegistry.add(mgl::CUBE, sceneRoot.get());
-	NodeRegistry.get("brick_sphere.obj")->setPosition(glm::vec3(2.0f, 0.0f, 0.0f));
-	NodeRegistry.get("plastic_sphere.obj")->setPosition(glm::vec3(-2.0f, 0.0f, 0.0f));
+	NodeRegistry.get("plastic_sphere.obj")->setPosition(glm::vec3(2.0f, 0.0f, 0.0f));
+	NodeRegistry.get("moss.obj")->setPosition(glm::vec3(-2.0f, 0.0f, 0.0f));
 }
 
 ///////////////////////////////////////////////////////////////////////// CAMERA
@@ -236,12 +262,12 @@ void MyApp::createFrameBuffers() {
     frameBufferShader->addAttribute(mgl::TEXCOORD_ATTRIBUTE, 1);
     frameBufferShader->addUniform(mgl::SCREEN_TEXTUERE_SAMPLER);
     frameBufferShader->addUniform(mgl::GAMMA);
+	frameBufferShader->addUniform(mgl::EXPOSURE);
 
     frameBufferShader->create();
 
     frameBufferShader->bind();
     glUniform1i(frameBufferShader->Uniforms[mgl::SCREEN_TEXTUERE_SAMPLER].index, mgl::SCREEN_TEXTURE_UNIT_INDEX);
-    glUniform1f(frameBufferShader->Uniforms[mgl::GAMMA].index, gamma);
     frameBufferShader->unbind();
 
     frameBuffer->setShaderProgram(frameBufferShader);
@@ -251,19 +277,31 @@ void MyApp::createFrameBuffers() {
 
 
 void MyApp::drawScene(double elapsed) {
-    Shaders->bind();
-	/* Maybe change this to update the uniform inside OrbitCamera updateView function TODO() */
-    glm::vec3 camPos = activeCamera->getPosition();
-	glUniform3fv(Shaders->Uniforms[mgl::CAMERA_POSITION].index, 1, glm::value_ptr(camPos));
+    if (!showBRDF) {
+        Shaders->bind();
+        /* Maybe change this to update the uniform inside OrbitCamera updateView function TODO() */
+        glm::vec3 camPos = activeCamera->getPosition();
+        glUniform3fv(Shaders->Uniforms[mgl::CAMERA_POSITION].index, 1, glm::value_ptr(camPos));
 
-    sceneRoot->drawSceneGraph();
-    sceneRoot->transformRotate(glm::radians(0.2f), glm::vec3(0.0f, 1.0f, 0.0f)); 
-    
-    Shaders->unbind();
+        sceneRoot->drawSceneGraph();
+        sceneRoot->transformRotate(glm::radians(0.2f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-	SkyboxShaders->bind();
-	hdrSkybox->render(*activeCamera->getCamera());
-	SkyboxShaders->unbind();
+        Shaders->unbind();
+
+        SkyboxShaders->bind();
+        hdrSkybox->render(*activeCamera->getCamera());
+        SkyboxShaders->unbind();
+    }
+    else {
+        // Debug mode: show BRDF LUT on-screen
+        // Ensure BRDF LUT texture is bound to its texture unit first
+        hdrSkybox->bindBRDFLUTTexture(mgl::BRDDF_LUT_TEXTURE_UNIT);
+
+        debugShader->bind();
+        // hdrSkybox provides a drawQuad() that draws the fullscreen quad (it was used to bake the LUT)
+        hdrSkybox->drawQuad();
+        debugShader->unbind();
+    }
 }
 
 ////////////////////////////////////////////////////////////////////// CALLBACKS
@@ -327,6 +365,36 @@ void MyApp::keyCallback(GLFWwindow* window, int key, int scancode, int action, i
             ortho_mode ? activeCamera->setProjection(Ortho_Pro) : activeCamera->setProjection(Pesp_Pro);
         }
     }
+
+    if (key == GLFW_KEY_L && action == GLFW_PRESS) {
+        showBRDF = !showBRDF;
+    }
+
+    if (key == GLFW_KEY_0 && action == GLFW_PRESS) {
+		float gamma = frameBuffer->getGamma();
+		frameBuffer->setGamma(gamma + 0.1f);
+		std::cout << "Gamma: " << frameBuffer->getGamma() << std::endl;
+    }
+    if (key == GLFW_KEY_9 && action == GLFW_PRESS) {
+		float gamma = frameBuffer->getGamma();
+		gamma -= 0.1f;
+		frameBuffer->setGamma(gamma);
+        if (gamma < 0.0f) gamma = 0.1f;
+		std::cout << "Gamma: " << gamma << std::endl;
+    }
+	if (key == GLFW_KEY_8 && action == GLFW_PRESS) {
+        float exposure = frameBuffer->getExposure();
+        frameBuffer->setExposure(exposure + 0.1f);
+		std::cout << "Exposure: " << frameBuffer->getExposure() << std::endl;
+    }
+    if (key == GLFW_KEY_7 && action == GLFW_PRESS) {
+        float exposure = frameBuffer->getExposure();
+        exposure -= 0.1f;
+        frameBuffer->setExposure(exposure);
+        if (exposure < 0.0f) exposure = 0.1f;
+        std::cout << "Exposure: " << exposure << std::endl;
+    }
+
 }
 
 void MyApp::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
