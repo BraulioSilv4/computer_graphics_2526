@@ -49,7 +49,7 @@ vec3 lightPositions[NUM_LIGHTS] = vec3[](
 vec3 lightColors[NUM_LIGHTS] = vec3[](
     vec3(00.0, 00.0, 00.0),  // White
     vec3(00.0, 00.0, 00.0),      // Red
-    vec3(00.0, 00.0, 00.0),      // Green
+    vec3(00.0, 00.0, 300.0),      // Green
     vec3(00.0, 00.0, 00.0)       // Blue
 );
 /*****************************************************************/
@@ -240,6 +240,7 @@ void main(void)
 
     // test
     // FragmentColor = vec4(vec3(roughness), 1.0); return;
+//    FragmentColor = vec4(vec3(metalness), 1.0); return;
 
     // PBR Vectors
     N = getNormals();

@@ -394,6 +394,16 @@ void Mesh::bindMaterialsTextures(int materialIdx) {
 
     if (Materials[materialIdx].matTex.texMetallic) {
         Materials[materialIdx].matTex.texMetallic->bind(METALLIC_TEXTURE_UNIT); /* Metallic to texture1_unit */
+    } else {
+		GLuint defaultMetallic; // This approach is inneficient but simple will change in future
+        glGenTextures(1, &defaultMetallic);
+        glActiveTexture(METALLIC_TEXTURE_UNIT);
+        glBindTexture(GL_TEXTURE_2D, defaultMetallic);
+		unsigned char black[4] = { 0, 0, 0, 255 };
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, black);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     if (Materials[materialIdx].matTex.texNormalMap) {

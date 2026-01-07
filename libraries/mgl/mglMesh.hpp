@@ -119,6 +119,8 @@ private:
   void loadDisplacementTex(const std::string& directory, const aiMaterial* material, int materialIdx);
   void loadDisplacementTexFromFile(const std::string& directory, const aiString& path, int materialIdx);*/
 
+  void setDefaultMetallicTexture(Texture* texture);
+
   void loadMaterialParameters(const aiMaterial* material, int materialIdx);
 
   void bindMaterialsTextures(int materialIdx);

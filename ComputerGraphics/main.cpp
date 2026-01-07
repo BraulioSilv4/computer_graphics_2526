@@ -93,7 +93,7 @@ void MyApp::createMeshes() {
     brick->flipUVs();
     brick->create(brick_path);
 
-	std::string plastic_path = "..\\assets\\models\\Sphere\\moss.obj";
+	std::string plastic_path = "..\\assets\\models\\Sphere\\brick_sphere.obj";
 	mgl::Mesh* plastic = new mgl::Mesh();
 	plastic->generateSmoothNormals();
 	plastic->calculateTangentSpace();
@@ -208,25 +208,25 @@ void MyApp::createSceneGraph() {
 
     auto brickChild = std::make_unique<mgl::SceneNode>(
         "brick_sphere.obj",
-        MeshManager.get("..\\assets\\models\\Sphere\\plastic_sphere.obj"),
+        MeshManager.get("..\\assets\\models\\Sphere\\brick_sphere.obj"),
         Shaders
     );
 
     auto plasticChild = std::make_unique<mgl::SceneNode>(
         "plastic_sphere.obj",
-        MeshManager.get("..\\assets\\models\\Sphere\\moss.obj"),
+        MeshManager.get("..\\assets\\models\\Sphere\\plastic_sphere.obj"),
         Shaders
 	);
 
-	NodeRegistry.add("moss.obj", plasticChild.get());
-    NodeRegistry.add("plastic_sphere.obj", brickChild.get());
+	NodeRegistry.add("plastic_sphere.obj", plasticChild.get());
+    NodeRegistry.add("brick_sphere.obj", brickChild.get());
 	root->addChild(std::move(brickChild));
 	root->addChild(std::move(plasticChild));
 
     sceneRoot = std::move(root);
     NodeRegistry.add(mgl::CUBE, sceneRoot.get());
 	NodeRegistry.get("plastic_sphere.obj")->setPosition(glm::vec3(2.0f, 0.0f, 0.0f));
-	NodeRegistry.get("moss.obj")->setPosition(glm::vec3(-2.0f, 0.0f, 0.0f));
+	NodeRegistry.get("brick_sphere.obj")->setPosition(glm::vec3(-2.0f, 0.0f, 0.0f));
 }
 
 ///////////////////////////////////////////////////////////////////////// CAMERA
