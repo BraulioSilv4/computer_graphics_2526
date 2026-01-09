@@ -13,6 +13,9 @@
 #include <GLFW/glfw3.h>
 #include <glm/ext.hpp>
 #include <glm/glm.hpp>
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 
 namespace mgl {
 
@@ -56,6 +59,7 @@ public:
   void init();
   void run();
 
+
   double getLastTime() const;
 
 protected:
@@ -75,6 +79,7 @@ private:
   void setupGLFW();
   void setupGLEW();
   void setupOpenGL();
+  void setupImGui();
   void setupCallbacks();
 
 public:

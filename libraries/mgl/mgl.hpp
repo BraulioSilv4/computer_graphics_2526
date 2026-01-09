@@ -30,5 +30,6 @@
 #include "mglFrameBuffer.hpp"
 #include "mglHDRITexture.hpp"
 #include "mglHDRSkybox.hpp"
+#include "mglGUI.hpp"
 
 #endif /* MGL_HPP */

@@ -50,6 +50,8 @@ const char TANGENT_ATTRIBUTE[] = "inTangent";
 const char BITANGENT_ATTRIBUTE[] = "inBitangent";
 const char COLOR_ATTRIBUTE[] = "inColor";
 
+const char ENABLE_NORMAL_MAPPING[] = "enableNormalMapping";
+
 constexpr unsigned int ENVIRONMENT_TEXTURE_UNIT = GL_TEXTURE0;
 constexpr unsigned int ENVIRONMENT_UNIT_INDEX = 0;
 

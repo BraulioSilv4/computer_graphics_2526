@@ -33,6 +33,9 @@ uniform samplerCube irradianceSampler;      // For IBL diffuse
 uniform samplerCube prefilteredEnvSampler;  // For IBL specular
 uniform sampler2D brdfLUTSampler;           // For IBL specular
 uniform vec3 CameraPosition;                // cameraPosition
+
+// Shader settings 
+uniform bool enableNormalMapping;                      
 /******************************************************************/
 
 
@@ -92,7 +95,7 @@ mat3 buildTBN() {
 }
 
 vec3 getNormals() {
-    if(normalMapping) {
+    if(enableNormalMapping) {
         vec3 normalMap = texture(normalSampler, exTexcoord).xyz * 2.0 - 1.0;
         return normalize(TBN * normalMap);
     } else {

@@ -168,6 +168,7 @@ void Mesh::loadMaterials(const aiScene* scene, const std::string& filename) {
 
 void Mesh::loadTextures(const std::string& directory, const aiMaterial* material, int idx) {
     /* Currently only works with obj files */
+    loadDefaultTextures();
     loadAlbedoTex(directory, material, idx);
     loadRoughnessTex(directory, material, idx);
     loadMetallicTex(directory, material, idx);
@@ -269,10 +270,6 @@ void Mesh::loadNormalMapTexFromFile(const std::string& directory, const aiString
     std::cout << "Loaded Normal Map Texture: " << texPath.c_str() << std::endl;
 }
 
-//void Mesh::loadAlbedoTex(const std::string& directory, const aiMaterial& material, int idx) {
-//
-//}
-
 void Mesh::loadMaterialParameters(const aiMaterial* material, int idx) {
     if (material->Get(AI_MATKEY_METALLIC_FACTOR, Materials[idx].matProps.metallic) == AI_SUCCESS) {
         std::cout << Materials[idx].name << " Pm " << Materials[idx].matProps.metallic << std::endl;
@@ -315,6 +312,22 @@ void Mesh::create(const std::string &filename) {
     processScene(scene);
     loadMaterials(scene, filename);
     createBufferObjects();
+}
+
+void Mesh::bindDefaultMetallicTexture() {
+    glActiveTexture(METALLIC_TEXTURE_UNIT);
+    glBindTexture(GL_TEXTURE_2D, defaultMetallicTexture);
+}
+
+void Mesh::loadDefaultTextures() {
+    glGenTextures(1, &defaultMetallicTexture);
+    glActiveTexture(METALLIC_TEXTURE_UNIT);
+    glBindTexture(GL_TEXTURE_2D, defaultMetallicTexture);
+    unsigned char black[4] = { 0, 0, 0, 255 };
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, black);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Mesh::createBufferObjects() {
@@ -388,22 +401,14 @@ void Mesh::destroyBufferObjects() {
 }
 
 void Mesh::bindMaterialsTextures(int materialIdx) {
+    bindDefaultMetallicTexture(); /* Avoids non metallic materials looking metallic due to default sampling value */
+    
     if (Materials[materialIdx].matTex.texAlbedo) {
         Materials[materialIdx].matTex.texAlbedo->bind(ALBEDO_TEXTURE_UNIT); /* Albedo to texture0_unit */
     }
 
     if (Materials[materialIdx].matTex.texMetallic) {
         Materials[materialIdx].matTex.texMetallic->bind(METALLIC_TEXTURE_UNIT); /* Metallic to texture1_unit */
-    } else {
-		GLuint defaultMetallic; // This approach is inneficient but simple will change in future
-        glGenTextures(1, &defaultMetallic);
-        glActiveTexture(METALLIC_TEXTURE_UNIT);
-        glBindTexture(GL_TEXTURE_2D, defaultMetallic);
-		unsigned char black[4] = { 0, 0, 0, 255 };
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, black);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     if (Materials[materialIdx].matTex.texNormalMap) {

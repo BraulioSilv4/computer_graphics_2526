@@ -61,7 +61,7 @@ static void joystick_callback(int jid, int event) {
 Engine::Engine(void)
     : WindowWidth(640), WindowHeight(480), GlApp(nullptr), Window(nullptr),
       WindowTitle("OpenGL App GLFW Window 2025(c) Carlos Martinho"), GlMajor(3),
-      GlMinor(3), Fullscreen(0), Vsync(0) {}
+	GlMinor(3), Fullscreen(0), Vsync(0) {}
 
 Engine::~Engine(void) {}
 
@@ -83,8 +83,7 @@ double Engine::getLastTime() const {
     return lastTime;
 }
 
-void Engine::setWindow(int width, int height, const char *title, int fullscreen,
-                       int vsync) {
+void Engine::setWindow(int width, int height, const char *title, int fullscreen, int vsync) {
   WindowWidth = width;
   WindowHeight = height;
   WindowTitle = title;
@@ -155,6 +154,23 @@ void Engine::setupOpenGL() {
   glViewport(0, 0, WindowWidth, WindowHeight);
 }
 
+void Engine::setupImGui() {
+    const char* glsl_version = "#version 130";
+    float main_scale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor());
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    
+    ImGui::StyleColorsDark();
+
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.ScaleAllSizes(main_scale);
+    style.FontScaleDpi = main_scale;
+
+    ImGui_ImplGlfw_InitForOpenGL(Window, true);
+    ImGui_ImplOpenGL3_Init(glsl_version);
+}
+
 void displayInfo() {
   std::cerr << "OpenGL Renderer: " << glGetString(GL_RENDERER) << " ("
             << glGetString(GL_VENDOR) << ")" << std::endl;
@@ -170,9 +186,10 @@ void Engine::init() {
   setupGLFW();
   setupGLEW();
   setupOpenGL();
+  setupImGui();
+  displayInfo();
   GlApp->initCallback(Window);
 #ifdef DEBUG
-  displayInfo();
   setupDebugOutput();
 #endif
 }

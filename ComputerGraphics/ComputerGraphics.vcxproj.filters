@@ -37,6 +37,9 @@
     <Filter Include="Source Files\Scene">
       <UniqueIdentifier>{ad9be0e2-9a51-4f40-b326-84292d9130fe}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\imgui">
+      <UniqueIdentifier>{7e33830a-a578-4a21-bca6-7cbdc785cfe3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\libraries\mgl\mglError.cpp">
@@ -85,6 +88,30 @@
       <Filter>Source Files\Scene</Filter>
     </ClCompile>
     <ClCompile Include="..\libraries\mgl\mglHDRSkybox.cpp">
+      <Filter>Source Files\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\imgui\imgui.cpp">
+      <Filter>Header Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\imgui\imgui_demo.cpp">
+      <Filter>Header Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\imgui\imgui_draw.cpp">
+      <Filter>Header Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\imgui\imgui_tables.cpp">
+      <Filter>Header Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\imgui\imgui_widgets.cpp">
+      <Filter>Header Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\imgui\backends\imgui_impl_glfw.cpp">
+      <Filter>Header Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\imgui\backends\imgui_impl_opengl3.cpp">
+      <Filter>Header Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\libraries\mgl\mglGUI.cpp">
       <Filter>Source Files\Scene</Filter>
     </ClCompile>
   </ItemGroup>
@@ -159,6 +186,9 @@
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
     <ClInclude Include="..\libraries\mgl\mglHDRSkybox.hpp">
+      <Filter>Header Files\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libraries\mgl\mglGUI.hpp">
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
   </ItemGroup>

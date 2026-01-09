@@ -71,6 +71,7 @@ private:
   GLuint VaoId;
   unsigned int AssimpFlags;
   bool NormalsLoaded, TexcoordsLoaded, TangentsAndBitangentsLoaded;
+  GLuint defaultMetallicTexture;
 
   struct MeshData {
     unsigned int nIndices = 0;
@@ -119,11 +120,11 @@ private:
   void loadDisplacementTex(const std::string& directory, const aiMaterial* material, int materialIdx);
   void loadDisplacementTexFromFile(const std::string& directory, const aiString& path, int materialIdx);*/
 
-  void setDefaultMetallicTexture(Texture* texture);
-
   void loadMaterialParameters(const aiMaterial* material, int materialIdx);
-
   void bindMaterialsTextures(int materialIdx);
+
+  void loadDefaultTextures();
+  void bindDefaultMetallicTexture();
 
   void createBufferObjects();
   void destroyBufferObjects();

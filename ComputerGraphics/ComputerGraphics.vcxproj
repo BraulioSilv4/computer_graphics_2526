@@ -102,12 +102,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)libraries\assimp\include;$(SolutionDir)libraries\glm;$(SolutionDir)libraries\glew\include;$(SolutionDir)libraries\glfw\include;$(SolutionDir)libraries\mgl;$(SolutionDir)libraries\stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)libraries\assimp\include;$(SolutionDir)libraries\glm;$(SolutionDir)libraries\glew\include;$(SolutionDir)libraries\glfw\include;$(SolutionDir)libraries\mgl;$(SolutionDir)libraries\stb;$(SolutionDir)libraries\imgui;$(SolutionDir)libraries\imgui\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)libraries\assimp\lib;$(SolutionDir)libraries\glew\lib\Release\x64;$(SolutionDir)libraries\glfw\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)libraries\assimp\lib;$(SolutionDir)libraries\glew\lib\Release\x64;$(SolutionDir)libraries\glfw\lib-vc2022;$(SolutionDir)libraries\imgui;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glew32.lib;glfw3dll.lib;opengl32.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -133,6 +133,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\libraries\imgui\backends\imgui_impl_glfw.cpp" />
+    <ClCompile Include="..\libraries\imgui\backends\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="..\libraries\imgui\imgui.cpp" />
+    <ClCompile Include="..\libraries\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\libraries\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\libraries\imgui\imgui_tables.cpp" />
+    <ClCompile Include="..\libraries\imgui\imgui_widgets.cpp" />
     <ClCompile Include="..\libraries\mgl\mglAnimation.cpp" />
     <ClCompile Include="..\libraries\mgl\mglAnimationGroup.cpp" />
     <ClCompile Include="..\libraries\mgl\mglApp.cpp" />
@@ -140,6 +147,7 @@
     <ClCompile Include="..\libraries\mgl\mglCubeMapTexture.cpp" />
     <ClCompile Include="..\libraries\mgl\mglError.cpp" />
     <ClCompile Include="..\libraries\mgl\mglFrameBuffer.cpp" />
+    <ClCompile Include="..\libraries\mgl\mglGUI.cpp" />
     <ClCompile Include="..\libraries\mgl\mglHDRITexture.cpp" />
     <ClCompile Include="..\libraries\mgl\mglHDRSkybox.cpp" />
     <ClCompile Include="..\libraries\mgl\mglMesh.cpp" />
@@ -161,6 +169,7 @@
     <ClInclude Include="..\libraries\mgl\mglCubeMapTexture.hpp" />
     <ClInclude Include="..\libraries\mgl\mglError.hpp" />
     <ClInclude Include="..\libraries\mgl\mglFrameBuffer.hpp" />
+    <ClInclude Include="..\libraries\mgl\mglGUI.hpp" />
     <ClInclude Include="..\libraries\mgl\mglHDRITexture.hpp" />
     <ClInclude Include="..\libraries\mgl\mglHDRSkybox.hpp" />
     <ClInclude Include="..\libraries\mgl\mglInstanceManager.hpp" />

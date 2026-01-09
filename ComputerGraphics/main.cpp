@@ -1,14 +1,3 @@
-////////////////////////////////////////////////////////////////////////////////
-//
-//  Loading meshes from external files
-//
-// Copyright (c) 2023-25 by Carlos Martinho
-//
-// INTRODUCES:
-// MODEL DATA, ASSIMP, mglMesh.hpp
-//
-////////////////////////////////////////////////////////////////////////////////
-
 #define GLM_ENABLE_EXPERIMENTAL
 
 #include "../mgl/mgl.hpp"
@@ -47,9 +36,8 @@ private:
   mgl::Manager<mgl::Mesh, std::string> MeshManager;
   mgl::Registry<std::string, mgl::SceneNode*> NodeRegistry;
 
-  // debug shader to visualize arbitrary textures (BRDF LUT)
-  mgl::ShaderProgram* debugShader = nullptr;
-  bool showBRDF = false; // toggle display of BRDF LUT
+  /* ImGui */
+  mgl::GUI* gui = nullptr;
   
   /* Shader Programs */ 
   mgl::ShaderProgram* Shaders = nullptr;
@@ -71,6 +59,9 @@ private:
   void createSceneGraph();
   void createShaderPrograms();
   void createFrameBuffers();
+  void createGUI();
+
+  void updateUnifroms();
   void drawScene(double elapsed);
 };
 
@@ -126,7 +117,6 @@ void MyApp::createShaderPrograms() {
   SkyboxShaders->bind();
   glUniform1i(SkyboxShaders->Uniforms[mgl::CUBEMAP_SAMPLER].index, mgl::CUBEMAP_UNIT_INDEX);
   glUniform1i(SkyboxShaders->Uniforms[mgl::EQUIRECTANGULAR_SAMPLER].index, mgl::EQUIRECTANGULAR_UNIT_INDEX);
-  glUniform1i(SkyboxShaders->Uniforms[mgl::CUBEMAP_SAMPLER].index, mgl::CUBEMAP_UNIT_INDEX);
   SkyboxShaders->unbind();
 
   hdrSkybox->setShaderProgram(SkyboxShaders);
@@ -156,6 +146,7 @@ void MyApp::createShaderPrograms() {
   Shaders->addUniform(mgl::PREFILTERED_ENV_SAMPLER);
   Shaders->addUniform(mgl::BRDDF_LUT_SAMPLER);
 
+  Shaders->addUniform(mgl::ENABLE_NORMAL_MAPPING);
 
   Shaders->addUniform(mgl::MODEL_MATRIX);
   Shaders->addUniform(mgl::CAMERA_POSITION);
@@ -180,19 +171,6 @@ void MyApp::createShaderPrograms() {
   Shaders->unbind();
 
   ModelMatrixId = Shaders->Uniforms[mgl::MODEL_MATRIX].index;
-
-
-  debugShader = new mgl::ShaderProgram();
-  debugShader->addShader(GL_VERTEX_SHADER, "framebuffer-vs.glsl");
-  debugShader->addShader(GL_FRAGMENT_SHADER, "show-texture-fs.glsl");
-  debugShader->addAttribute(mgl::POSITION_ATTRIBUTE, 0);
-  debugShader->addAttribute(mgl::TEXCOORD_ATTRIBUTE, 1);
-  debugShader->addUniform("tex"); // we'll set this to the BRDF LUT sampler unit
-  debugShader->create();
-
-  debugShader->bind();
-  glUniform1i(debugShader->Uniforms["tex"].index, mgl::BRDDF_LUT_UNIT_INDEX);
-  debugShader->unbind();
 }
 
 ///////////////////////////////////////////////////////////////////////// SCENE GRAPH
@@ -273,35 +251,43 @@ void MyApp::createFrameBuffers() {
     frameBuffer->setShaderProgram(frameBufferShader);
 }
 
+/////////////////////////////////////////////////////////////////////////// GUI
+
+void MyApp::createGUI() {
+	gui = new mgl::GUI();
+	gui->initGUI();
+	gui->enableKeyboardNavigationGUI(true);
+}
+
 /////////////////////////////////////////////////////////////////////////// DRAW
 
-
 void MyApp::drawScene(double elapsed) {
-    if (!showBRDF) {
-        Shaders->bind();
-        /* Maybe change this to update the uniform inside OrbitCamera updateView function TODO() */
-        glm::vec3 camPos = activeCamera->getPosition();
-        glUniform3fv(Shaders->Uniforms[mgl::CAMERA_POSITION].index, 1, glm::value_ptr(camPos));
+    Shaders->bind();
+    /* Maybe change this to update the uniform inside OrbitCamera updateView function TODO() */
+    glm::vec3 camPos = activeCamera->getPosition();
+    glUniform3fv(Shaders->Uniforms[mgl::CAMERA_POSITION].index, 1, glm::value_ptr(camPos));
 
-        sceneRoot->drawSceneGraph();
-        sceneRoot->transformRotate(glm::radians(0.2f), glm::vec3(0.0f, 1.0f, 0.0f));
+    sceneRoot->drawSceneGraph();
+    sceneRoot->transformRotate(glm::radians(0.2f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-        Shaders->unbind();
+    Shaders->unbind();
 
-        SkyboxShaders->bind();
-        hdrSkybox->render(*activeCamera->getCamera());
-        SkyboxShaders->unbind();
-    }
-    else {
-        // Debug mode: show BRDF LUT on-screen
-        // Ensure BRDF LUT texture is bound to its texture unit first
-        hdrSkybox->bindBRDFLUTTexture(mgl::BRDDF_LUT_TEXTURE_UNIT);
+    SkyboxShaders->bind();
+    hdrSkybox->render(*activeCamera->getCamera());
+    SkyboxShaders->unbind();
+}
 
-        debugShader->bind();
-        // hdrSkybox provides a drawQuad() that draws the fullscreen quad (it was used to bake the LUT)
-        hdrSkybox->drawQuad();
-        debugShader->unbind();
-    }
+/////////////////////////////////////////////////////////////////////////// UPDATE UNIFORMS
+
+void MyApp::updateUnifroms() {
+	frameBuffer->bind();
+	frameBuffer->setExposure(gui->getState().exposure);
+	frameBuffer->setGamma(gui->getState().gamma);
+	frameBuffer->unbind();
+
+	Shaders->bind();
+    glUniform1i(Shaders->Uniforms[mgl::ENABLE_NORMAL_MAPPING].index, gui->getState().enableNormalMapping);
+	Shaders->unbind();
 }
 
 ////////////////////////////////////////////////////////////////////// CALLBACKS
@@ -311,6 +297,7 @@ void MyApp::initCallback(GLFWwindow *win) {
   createShaderPrograms(); // after mesh;
   createSceneGraph();
   createCamera();
+  createGUI();
   createFrameBuffers();
 }
 
@@ -334,6 +321,12 @@ void MyApp::windowSizeCallback(GLFWwindow *win, int winx, int winy) {
 }
 
 void MyApp::displayCallback(GLFWwindow* win, double elapsed) {
+    gui->generateBuffersGUI();
+	gui->renderWindowGUI();
+	gui->processGlobalCallbacksGUI();
+
+	updateUnifroms();
+
     frameBuffer->bind();
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -344,6 +337,8 @@ void MyApp::displayCallback(GLFWwindow* win, double elapsed) {
     frameBuffer->unbind();
 
     frameBuffer->render();
+
+	gui->renderGUI();
 }
 
 void MyApp::cursorCallback(GLFWwindow* window, double xpos, double ypos) {
@@ -366,35 +361,9 @@ void MyApp::keyCallback(GLFWwindow* window, int key, int scancode, int action, i
         }
     }
 
-    if (key == GLFW_KEY_L && action == GLFW_PRESS) {
-        showBRDF = !showBRDF;
-    }
+    if (key == GLFW_KEY_O && action == GLFW_PRESS) {
 
-    if (key == GLFW_KEY_0 && action == GLFW_PRESS) {
-		float gamma = frameBuffer->getGamma();
-		frameBuffer->setGamma(gamma + 0.1f);
-		std::cout << "Gamma: " << frameBuffer->getGamma() << std::endl;
     }
-    if (key == GLFW_KEY_9 && action == GLFW_PRESS) {
-		float gamma = frameBuffer->getGamma();
-		gamma -= 0.1f;
-		frameBuffer->setGamma(gamma);
-        if (gamma < 0.0f) gamma = 0.1f;
-		std::cout << "Gamma: " << gamma << std::endl;
-    }
-	if (key == GLFW_KEY_8 && action == GLFW_PRESS) {
-        float exposure = frameBuffer->getExposure();
-        frameBuffer->setExposure(exposure + 0.1f);
-		std::cout << "Exposure: " << frameBuffer->getExposure() << std::endl;
-    }
-    if (key == GLFW_KEY_7 && action == GLFW_PRESS) {
-        float exposure = frameBuffer->getExposure();
-        exposure -= 0.1f;
-        frameBuffer->setExposure(exposure);
-        if (exposure < 0.0f) exposure = 0.1f;
-        std::cout << "Exposure: " << exposure << std::endl;
-    }
-
 }
 
 void MyApp::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
