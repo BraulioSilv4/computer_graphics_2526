@@ -20,6 +20,7 @@ public:
 		Texture* texRoughness = NULL;
 		Texture* texMetallic = NULL;
 		Texture* texNormalMap = NULL;
+		Texture* texARM = NULL;
 	};
 
 	std::string name;

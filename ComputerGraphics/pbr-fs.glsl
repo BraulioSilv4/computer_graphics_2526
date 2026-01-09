@@ -29,6 +29,7 @@ uniform sampler2D diffSampler;              // Albedo
 uniform sampler2D normalSampler;
 uniform sampler2D roughSampler;             // Roughness
 uniform sampler2D metalSampler;
+uniform sampler2D armSampler;
 uniform samplerCube irradianceSampler;      // For IBL diffuse
 uniform samplerCube prefilteredEnvSampler;  // For IBL specular
 uniform sampler2D brdfLUTSampler;           // For IBL specular
@@ -68,6 +69,7 @@ mat3 TBN;
 vec4 albedo;    
 float metalness;
 float roughness;
+float ao;
 vec3 emissivity = vec3(0.0, 0.0, 0.0); // To add a sampler to sample from these textures
 
 vec3 F0; // Base Reflectivity
@@ -237,13 +239,15 @@ void main(void)
 
     // PBR Materials
     albedo = texture(diffSampler, exTexcoord);      
-    roughness = texture(roughSampler, exTexcoord).r;
-    metalness = texture(metalSampler, exTexcoord).r;
-    F0 = mix(vec3(0.04), albedo.rgb, metalness); // Interpolate based on metalness values (metal = 1.0)
+    vec3 arm = texture(armSampler, exTexcoord).rgb;
+    ao = arm.r;
+    roughness = arm.g;
+    metalness = arm.b;
 
-    // test
-    // FragmentColor = vec4(vec3(roughness), 1.0); return;
-//    FragmentColor = vec4(vec3(metalness), 1.0); return;
+    FragmentColor = vec4(albedo.rgb, 1.0);
+    return;
+
+    F0 = mix(vec3(0.04), albedo.rgb, metalness); // Interpolate based on metalness values (metal = 1.0)
 
     // PBR Vectors
     N = getNormals();
@@ -263,9 +267,9 @@ void main(void)
 
     vec3 irradiance = texture(irradianceSampler, N).rgb;
     vec3 diffuse = irradiance * albedo.rgb;
-    vec3 ambient = (kD * diffuse + specular);  // * AO <- we need to add this 
+    vec3 ambient = (kD * diffuse + specular) * ao; 
 
     vec3 color = ambient + PBR_point(); 
    
-    FragmentColor = vec4(color, 1.0);
+    FragmentColor = vec4(color, albedo.a);
 }

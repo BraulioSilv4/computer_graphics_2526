@@ -68,72 +68,54 @@ private:
 ///////////////////////////////////////////////////////////////////////// MESHES
 
 void MyApp::createMeshes() {
-    std::string mesh_path = "..\\assets\\models\\Sphere\\metal_sphere.obj";
+    std::string mesh_path = "..\\assets\\models\\props\\Camera_01_4k.gltf";
     mgl::Mesh* m = new mgl::Mesh();
     m->generateSmoothNormals();
     m->calculateTangentSpace();
     m->joinIdenticalVertices();
-    m->flipUVs();
     m->create(mesh_path);
 
-    std::string brick_path = "..\\assets\\models\\Sphere\\plastic_sphere.obj";
-    mgl::Mesh* brick = new mgl::Mesh();
-    brick->generateSmoothNormals();
-    brick->calculateTangentSpace();
-    brick->joinIdenticalVertices();
-    brick->flipUVs();
-    brick->create(brick_path);
-
-	std::string plastic_path = "..\\assets\\models\\Sphere\\brick_sphere.obj";
-	mgl::Mesh* plastic = new mgl::Mesh();
-	plastic->generateSmoothNormals();
-	plastic->calculateTangentSpace();
-	plastic->joinIdenticalVertices();
-	plastic->flipUVs();
-	plastic->create(plastic_path);
-
     MeshManager.add(std::unique_ptr<mgl::Mesh>(m));
-	MeshManager.add(std::unique_ptr<mgl::Mesh>(brick));
-	MeshManager.add(std::unique_ptr<mgl::Mesh>(plastic));
 
-	hdrSkybox = new HDRSkybox("..\\assets\\HDR\\pine_attic_8k.hdr", nullptr);
+	hdrSkybox = new HDRSkybox("..\\assets\\HDR\\canary_wharf_4k.hdr", nullptr);
 }
 
 ///////////////////////////////////////////////////////////////////////// SHADER
 
 void MyApp::createShaderPrograms() {
-  SkyboxShaders = new mgl::ShaderProgram();
-  SkyboxShaders->addShader(GL_VERTEX_SHADER, "skybox-vs.glsl");
-  SkyboxShaders->addShader(GL_FRAGMENT_SHADER, "skybox-fs.glsl");
+    SkyboxShaders = new mgl::ShaderProgram();
+    SkyboxShaders->addShader(GL_VERTEX_SHADER, "skybox-vs.glsl");
+    SkyboxShaders->addShader(GL_FRAGMENT_SHADER, "skybox-fs.glsl");
 
-  SkyboxShaders->addAttribute(mgl::POSITION_ATTRIBUTE, mgl::Mesh::POSITION);
-  SkyboxShaders->addUniform(mgl::EQUIRECTANGULAR_SAMPLER);
-  SkyboxShaders->addUniform(mgl::CUBEMAP_SAMPLER);
-  SkyboxShaders->addUniform(mgl::PROJECTION_MATRIX);
-  SkyboxShaders->addUniform(mgl::VIEW_MATRIX);
+    SkyboxShaders->addAttribute(mgl::POSITION_ATTRIBUTE, mgl::Mesh::POSITION);
+    SkyboxShaders->addUniform(mgl::EQUIRECTANGULAR_SAMPLER);
+    SkyboxShaders->addUniform(mgl::CUBEMAP_SAMPLER);
+    SkyboxShaders->addUniform(mgl::PROJECTION_MATRIX);
+    SkyboxShaders->addUniform(mgl::VIEW_MATRIX);
 
-  SkyboxShaders->create();
+    SkyboxShaders->create();
 
-  SkyboxShaders->bind();
-  glUniform1i(SkyboxShaders->Uniforms[mgl::CUBEMAP_SAMPLER].index, mgl::CUBEMAP_UNIT_INDEX);
-  glUniform1i(SkyboxShaders->Uniforms[mgl::EQUIRECTANGULAR_SAMPLER].index, mgl::EQUIRECTANGULAR_UNIT_INDEX);
-  SkyboxShaders->unbind();
+    SkyboxShaders->bind();
+    glUniform1i(SkyboxShaders->Uniforms[mgl::CUBEMAP_SAMPLER].index, mgl::CUBEMAP_UNIT_INDEX);
+    glUniform1i(SkyboxShaders->Uniforms[mgl::EQUIRECTANGULAR_SAMPLER].index, mgl::EQUIRECTANGULAR_UNIT_INDEX);
+    SkyboxShaders->unbind();
 
-  hdrSkybox->setShaderProgram(SkyboxShaders);
-  hdrSkybox->init(); // loads the HDRI texture and creates the cubemap
+    hdrSkybox->setShaderProgram(SkyboxShaders);
+    hdrSkybox->init(); // loads the HDRI texture and creates the cubemap
+
 
   Shaders = new mgl::ShaderProgram();
   Shaders->addShader(GL_VERTEX_SHADER, "cube-vs.glsl");
   Shaders->addShader(GL_FRAGMENT_SHADER, "pbr-fs.glsl");
 
   Shaders->addAttribute(mgl::POSITION_ATTRIBUTE, mgl::Mesh::POSITION);
-  if (MeshManager.get("..\\assets\\models\\Sphere\\metal_sphere.obj")->hasNormals()) {
+  if (MeshManager.get("..\\assets\\models\\props\\Camera_01_4k.gltf")->hasNormals()) {
     Shaders->addAttribute(mgl::NORMAL_ATTRIBUTE, mgl::Mesh::NORMAL);
   }
-  if (MeshManager.get("..\\assets\\models\\Sphere\\metal_sphere.obj")->hasTexcoords()) {
+  if (MeshManager.get("..\\assets\\models\\props\\Camera_01_4k.gltf")->hasTexcoords()) {
     Shaders->addAttribute(mgl::TEXCOORD_ATTRIBUTE, mgl::Mesh::TEXCOORD);
   }
-  if (MeshManager.get("..\\assets\\models\\Sphere\\metal_sphere.obj")->hasTangentsAndBitangents()) {
+  if (MeshManager.get("..\\assets\\models\\props\\Camera_01_4k.gltf")->hasTangentsAndBitangents()) {
     Shaders->addAttribute(mgl::TANGENT_ATTRIBUTE, mgl::Mesh::TANGENT);
   }
 
@@ -142,6 +124,7 @@ void MyApp::createShaderPrograms() {
   Shaders->addUniform(mgl::METAL_SAMPLER);
   Shaders->addUniform(mgl::ROUGH_SAMPLER);
   Shaders->addUniform(mgl::CUBEMAP_SAMPLER);
+  Shaders->addUniform(mgl::ARM_SAMPLER);
   Shaders->addUniform(mgl::IRRADIANCE_SAMPLER);
   Shaders->addUniform(mgl::PREFILTERED_ENV_SAMPLER);
   Shaders->addUniform(mgl::BRDDF_LUT_SAMPLER);
@@ -156,6 +139,8 @@ void MyApp::createShaderPrograms() {
   /* Assigning texture units to samplers */
   Shaders->bind();
   glUniform1i(Shaders->Uniforms[mgl::DIFFUSE_SAMPLER].index, mgl::ALBEDO_UNIT_INDEX);
+  glUniform1i(Shaders->Uniforms[mgl::ARM_SAMPLER].index, mgl::ARM_UNIT_INDEX);
+  glUniform1i(Shaders->Uniforms[mgl::NORMAL_SAMPLER].index, mgl::NORMAL_UNIT_INDEX);
   glUniform1i(Shaders->Uniforms[mgl::ROUGH_SAMPLER].index, mgl::ROUGHNESS_UNIT_INDEX);
   glUniform1i(Shaders->Uniforms[mgl::METAL_SAMPLER].index, mgl::METALLIC_UNIT_INDEX);
   glUniform1i(Shaders->Uniforms[mgl::NORMAL_SAMPLER].index, mgl::NORMAL_UNIT_INDEX);
@@ -180,31 +165,13 @@ void MyApp::createSceneGraph() {
 
     auto root = std::make_unique<mgl::SceneNode>(
         rootName,
-        MeshManager.get("..\\assets\\models\\Sphere\\metal_sphere.obj"),
+        MeshManager.get("..\\assets\\models\\props\\Camera_01_4k.gltf"),
         Shaders
     );
 
-    auto brickChild = std::make_unique<mgl::SceneNode>(
-        "brick_sphere.obj",
-        MeshManager.get("..\\assets\\models\\Sphere\\brick_sphere.obj"),
-        Shaders
-    );
-
-    auto plasticChild = std::make_unique<mgl::SceneNode>(
-        "plastic_sphere.obj",
-        MeshManager.get("..\\assets\\models\\Sphere\\plastic_sphere.obj"),
-        Shaders
-	);
-
-	NodeRegistry.add("plastic_sphere.obj", plasticChild.get());
-    NodeRegistry.add("brick_sphere.obj", brickChild.get());
-	root->addChild(std::move(brickChild));
-	root->addChild(std::move(plasticChild));
 
     sceneRoot = std::move(root);
     NodeRegistry.add(mgl::CUBE, sceneRoot.get());
-	NodeRegistry.get("plastic_sphere.obj")->setPosition(glm::vec3(2.0f, 0.0f, 0.0f));
-	NodeRegistry.get("brick_sphere.obj")->setPosition(glm::vec3(-2.0f, 0.0f, 0.0f));
 }
 
 ///////////////////////////////////////////////////////////////////////// CAMERA
@@ -271,10 +238,6 @@ void MyApp::drawScene(double elapsed) {
     sceneRoot->transformRotate(glm::radians(0.2f), glm::vec3(0.0f, 1.0f, 0.0f));
 
     Shaders->unbind();
-
-    SkyboxShaders->bind();
-    hdrSkybox->render(*activeCamera->getCamera());
-    SkyboxShaders->unbind();
 }
 
 /////////////////////////////////////////////////////////////////////////// UPDATE UNIFORMS
@@ -330,10 +293,17 @@ void MyApp::displayCallback(GLFWwindow* win, double elapsed) {
     frameBuffer->bind();
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
+	
+    glEnable(GL_DEPTH_TEST);
+    SkyboxShaders->bind();
+    hdrSkybox->render(*activeCamera->getCamera());
+    SkyboxShaders->unbind();
+
+    glEnable(GL_BLEND);
 
     drawScene(elapsed);
 
+    glDisable(GL_BLEND);
     frameBuffer->unbind();
 
     frameBuffer->render();

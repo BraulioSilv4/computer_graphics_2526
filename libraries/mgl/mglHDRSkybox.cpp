@@ -72,7 +72,7 @@ void HDRSkybox::equiToCubemap(unsigned int cubemapSize, unsigned int irradianceS
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	
+
 	glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
 	glm::mat4 captureViews[] = {
 	   glm::lookAt(glm::vec3(0.0f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
@@ -121,7 +121,7 @@ void HDRSkybox::equiToCubemap(unsigned int cubemapSize, unsigned int irradianceS
 	glBindTexture(GL_TEXTURE_CUBE_MAP, irradianceMap);
 	for (unsigned int i = 0; i < 6; i++) {
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F,
-			irradianceSize, irradianceSize, 0, GL_RGB, GL_FLOAT, nullptr);	
+			irradianceSize, irradianceSize, 0, GL_RGB, GL_FLOAT, nullptr);
 	}
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -133,10 +133,10 @@ void HDRSkybox::equiToCubemap(unsigned int cubemapSize, unsigned int irradianceS
 	glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, irradianceSize, irradianceSize);
 
-	
+
 	convoluteShader->bind();
 
-	glUniformMatrix4fv(convoluteShader->Uniforms[mgl::PROJECTION_MATRIX].index, 1, GL_FALSE, 
+	glUniformMatrix4fv(convoluteShader->Uniforms[mgl::PROJECTION_MATRIX].index, 1, GL_FALSE,
 		glm::value_ptr(captureProjection));
 
 	/* Cubemap to texture unit */
@@ -153,9 +153,9 @@ void HDRSkybox::equiToCubemap(unsigned int cubemapSize, unsigned int irradianceS
 
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
 			GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irradianceMap, 0);
-		
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
+
 		unitCube->draw();
 	}
 
@@ -166,7 +166,7 @@ void HDRSkybox::equiToCubemap(unsigned int cubemapSize, unsigned int irradianceS
 	glGenTextures(1, &prefilterMap);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, prefilterMap);
 	for (unsigned int i = 0; i < 6; i++) {
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F,
 			specBaseMip, specBaseMip, 0, GL_RGB, GL_FLOAT, nullptr);
 	}
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -193,7 +193,7 @@ void HDRSkybox::equiToCubemap(unsigned int cubemapSize, unsigned int irradianceS
 	for (unsigned int mip = 0; mip < maxMipLevels; mip++) {
 		unsigned int mipWidth = specBaseMip * std::pow(0.5, mip);
 		unsigned int mipHeight = specBaseMip * std::pow(0.5, mip);
-		
+
 		glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipWidth, mipHeight);
 		glViewport(0, 0, mipWidth, mipHeight);
@@ -249,7 +249,7 @@ void HDRSkybox::equiToCubemap(unsigned int cubemapSize, unsigned int irradianceS
 }
 
 void HDRSkybox::initQuad() {
-	if (quadVAO != 0) return; 
+	if (quadVAO != 0) return;
 
 	float quadVertices[] = {
 		// positions   // texCoords
@@ -336,7 +336,7 @@ bool HDRSkybox::init() {
 	if (!loadHDRITexture(filename)) {
 		return false;
 	}
-	
+
 	createBakeShaders();
 
 	unitCube = new mgl::Mesh();

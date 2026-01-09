@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <mglConventions.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace mgl {
 
@@ -152,6 +153,15 @@ std::string getDirectoryFromFile(const std::string filename) {
     }
 }
 
+bool checkFileExtension(const std::string& filepath, const std::string& extension) {
+    size_t dotPosition = filepath.find_last_of('.');
+    if (dotPosition != std::string::npos) {
+        std::string fileExtension = filepath.substr(dotPosition + 1);
+        return extension == fileExtension;
+    }
+    return false;
+}
+
 void Mesh::loadMaterials(const aiScene* scene, const std::string& filename) {
     /* "..\\assets\\models\\Cube\\cube_with_materials.obj" */
     std::string directory = getDirectoryFromFile(filename);
@@ -170,11 +180,12 @@ void Mesh::loadTextures(const std::string& directory, const aiMaterial* material
     /* Currently only works with obj files */
     loadDefaultTextures();
     loadAlbedoTex(directory, material, idx);
-    loadRoughnessTex(directory, material, idx);
-    loadMetallicTex(directory, material, idx);
     loadNormalMapTex(directory, material, idx);
-	//loadAOTex(directory, material, idx);
-	//loadDisplacementTex(directory, material, idx);
+
+    /* Load arm texture */
+    if (checkFileExtension(this->id, "gltf")) {
+        loadARMTex(directory, material, idx);
+    }
 }
 
 void Mesh::loadAlbedoTex(const std::string& directory, const aiMaterial* material, int idx) {    
@@ -270,6 +281,28 @@ void Mesh::loadNormalMapTexFromFile(const std::string& directory, const aiString
     std::cout << "Loaded Normal Map Texture: " << texPath.c_str() << std::endl;
 }
 
+void Mesh::loadARMTex(const std::string& directory, const aiMaterial* material, int idx) {
+    aiString path;
+
+    if (material->GetTexture(aiTextureType_GLTF_METALLIC_ROUGHNESS, 0, &path) == AI_SUCCESS) {
+        loadARMTexFromFile(directory, path, idx);
+    }
+}
+
+void Mesh::loadARMTexFromFile(const std::string& directory, const aiString& path, int idx) {
+    std::string texPath = getFilePathFromDirectory(directory, path);
+    Materials[idx].matTex.texARM = new Texture(GL_TEXTURE_2D, texPath.c_str());
+
+    bool isSRGB = false;
+
+    if (!Materials[idx].matTex.texARM->load(isSRGB)) {
+        std::cout << "Error loading texture: " << texPath << std::endl;
+        exit(0);
+    }
+
+    std::cout << "Loaded GLTF ARM Texture: " << texPath.c_str() << std::endl;
+}
+
 void Mesh::loadMaterialParameters(const aiMaterial* material, int idx) {
     if (material->Get(AI_MATKEY_METALLIC_FACTOR, Materials[idx].matProps.metallic) == AI_SUCCESS) {
         std::cout << Materials[idx].name << " Pm " << Materials[idx].matProps.metallic << std::endl;
@@ -314,17 +347,29 @@ void Mesh::create(const std::string &filename) {
     createBufferObjects();
 }
 
-void Mesh::bindDefaultMetallicTexture() {
-    glActiveTexture(METALLIC_TEXTURE_UNIT);
-    glBindTexture(GL_TEXTURE_2D, defaultMetallicTexture);
+void Mesh::bindDefaultAlbedoTexture() {
+    glActiveTexture(ALBEDO_TEXTURE_UNIT);
+    glBindTexture(GL_TEXTURE_2D, defaultTexture);
+}
+
+void Mesh::bindDefaultNormalTexture() {
+    glActiveTexture(NORMAL_TEXTURE_UNIT);
+    glBindTexture(GL_TEXTURE_2D, defaultNormalsTexture);
 }
 
 void Mesh::loadDefaultTextures() {
-    glGenTextures(1, &defaultMetallicTexture);
-    glActiveTexture(METALLIC_TEXTURE_UNIT);
-    glBindTexture(GL_TEXTURE_2D, defaultMetallicTexture);
-    unsigned char black[4] = { 0, 0, 0, 255 };
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, black);
+    glGenTextures(1, &defaultTexture);
+    glBindTexture(GL_TEXTURE_2D, defaultTexture);
+    unsigned char white[4] = { 255, 255, 255, 255 };
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, white);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glGenTextures(1, &defaultNormalsTexture);
+    glBindTexture(GL_TEXTURE_2D, defaultNormalsTexture);
+    unsigned char normals[3] = { 128, 128, 255};
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1, 1, 0, GL_RGB, GL_UNSIGNED_BYTE, normals);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -401,22 +446,22 @@ void Mesh::destroyBufferObjects() {
 }
 
 void Mesh::bindMaterialsTextures(int materialIdx) {
-    bindDefaultMetallicTexture(); /* Avoids non metallic materials looking metallic due to default sampling value */
-    
     if (Materials[materialIdx].matTex.texAlbedo) {
         Materials[materialIdx].matTex.texAlbedo->bind(ALBEDO_TEXTURE_UNIT); /* Albedo to texture0_unit */
     }
-
-    if (Materials[materialIdx].matTex.texMetallic) {
-        Materials[materialIdx].matTex.texMetallic->bind(METALLIC_TEXTURE_UNIT); /* Metallic to texture1_unit */
+    else {
+        //bindDefaultAlbedoTexture();
     }
 
     if (Materials[materialIdx].matTex.texNormalMap) {
         Materials[materialIdx].matTex.texNormalMap->bind(NORMAL_TEXTURE_UNIT); /* Normal map to texture2_unit */
     }
+    else {
+        //bindDefaultNormalTexture();
+    }
 
-    if (Materials[materialIdx].matTex.texRoughness) {
-        Materials[materialIdx].matTex.texRoughness->bind(ROUGHNESS_TEXTURE_UNIT); /* Roughness map to texture3_unit */
+    if (Materials[materialIdx].matTex.texARM) {
+        Materials[materialIdx].matTex.texARM->bind(ARM_TEXTURE_UNIT); /* gltf special texture (ao, rough, metal) */
     }
 }
 

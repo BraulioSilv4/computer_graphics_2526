@@ -151,6 +151,7 @@ void Engine::setupOpenGL() {
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
   glFrontFace(GL_CCW);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glViewport(0, 0, WindowWidth, WindowHeight);
 }
 

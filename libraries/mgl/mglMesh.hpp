@@ -71,7 +71,7 @@ private:
   GLuint VaoId;
   unsigned int AssimpFlags;
   bool NormalsLoaded, TexcoordsLoaded, TangentsAndBitangentsLoaded;
-  GLuint defaultMetallicTexture;
+  GLuint defaultTexture, defaultNormalsTexture;
 
   struct MeshData {
     unsigned int nIndices = 0;
@@ -105,14 +105,17 @@ private:
   void loadAlbedoTex(const std::string& directory, const aiMaterial* material, int materialIdx);
   void loadAlbedoTexFromFile(const std::string& directory, const aiString& path, int materialIdx);
   
+  void loadNormalMapTex(const std::string& directory, const aiMaterial* material, int materialIdx);
+  void loadNormalMapTexFromFile(const std::string& directory, const aiString& path, int materialIdx);
+  
+  void loadARMTex(const std::string& directory, const aiMaterial* material, int materialIdx);
+  void loadARMTexFromFile(const std::string& directory, const aiString& path, int materialIdx);
+
   void loadRoughnessTex(const std::string& directory, const aiMaterial* material, int materialIdx);
   void loadRoughnessTexFromFile(const std::string& directory, const aiString& path, int materialIdx);
   
   void loadMetallicTex(const std::string& directory, const aiMaterial* material, int materialIdx);
   void loadMetallicTexFromFile(const std::string& directory, const aiString& path, int materialIdx);
-  
-  void loadNormalMapTex(const std::string& directory, const aiMaterial* material, int materialIdx);
-  void loadNormalMapTexFromFile(const std::string& directory, const aiString& path, int materialIdx);
 
  /* void loadAOTex(const std::string& directory, const aiMaterial* material, int materialIdx);
   void loadAOTexFromFile(const std::string& directory, const aiString& path, int materialIdx);
@@ -124,7 +127,8 @@ private:
   void bindMaterialsTextures(int materialIdx);
 
   void loadDefaultTextures();
-  void bindDefaultMetallicTexture();
+  void bindDefaultAlbedoTexture();
+  void bindDefaultNormalTexture();
 
   void createBufferObjects();
   void destroyBufferObjects();

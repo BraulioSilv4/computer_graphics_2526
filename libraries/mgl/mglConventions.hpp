@@ -20,6 +20,7 @@ const char NORMAL_SAMPLER[] = "normalSampler";
 const char ROUGH_SAMPLER[] = "roughSampler";
 const char METAL_SAMPLER[] = "metalSampler";
 const char HEIGHT_SAMPLER[] = "heightSampler";
+const char ARM_SAMPLER[] = "armSampler";
 const char CUBEMAP_SAMPLER[] = "cubeMapSampler";
 const char SCREEN_TEXTUERE_SAMPLER[] = "screenSampler";
 const char EQUIRECTANGULAR_SAMPLER[] = "equirectangularSampler";
@@ -87,6 +88,9 @@ constexpr unsigned int BRDDF_LUT_UNIT_INDEX = 7;
 
 constexpr unsigned int PREFILTERED_ENV_TEXTURE_UNIT = GL_TEXTURE8;
 constexpr unsigned int PREFILTERED_ENV_UNIT_INDEX = 8;
+
+constexpr unsigned int ARM_TEXTURE_UNIT = GL_TEXTURE9;
+constexpr unsigned int ARM_UNIT_INDEX = 9;
 
 ////////////////////////////////////////////////////////////////////////////////
 } // namespace mgl
