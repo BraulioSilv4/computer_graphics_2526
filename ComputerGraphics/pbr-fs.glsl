@@ -27,16 +27,18 @@ out vec4 FragmentColor;
 //uniform samplerCube cubeMapSampler;
 uniform sampler2D diffSampler;              // Albedo
 uniform sampler2D normalSampler;
-uniform sampler2D roughSampler;             // Roughness
-uniform sampler2D metalSampler;
 uniform sampler2D armSampler;
+uniform float roughnessFactor;
+uniform float metallicFactor;
+uniform vec4 baseColorFactor;
 uniform samplerCube irradianceSampler;      // For IBL diffuse
 uniform samplerCube prefilteredEnvSampler;  // For IBL specular
 uniform sampler2D brdfLUTSampler;           // For IBL specular
 uniform vec3 CameraPosition;                // cameraPosition
 
 // Shader settings 
-uniform bool enableNormalMapping;                      
+uniform bool enableNormalMapping;           
+uniform bool enableAmbientOcclusion;
 /******************************************************************/
 
 
@@ -53,7 +55,7 @@ vec3 lightPositions[NUM_LIGHTS] = vec3[](
 vec3 lightColors[NUM_LIGHTS] = vec3[](
     vec3(00.0, 00.0, 00.0),  // White
     vec3(00.0, 00.0, 00.0),      // Red
-    vec3(00.0, 00.0, 300.0),      // Green
+    vec3(00.0, 00.0, 00.0),      // Green
     vec3(00.0, 00.0, 00.0)       // Blue
 );
 /*****************************************************************/
@@ -238,11 +240,11 @@ void main(void)
     TBN = buildTBN();
 
     // PBR Materials
-    albedo = texture(diffSampler, exTexcoord);      
+    albedo = texture(diffSampler, exTexcoord) * baseColorFactor;      
     vec3 arm = texture(armSampler, exTexcoord).rgb;
-    ao = arm.r;
-    roughness = arm.g;
-    metalness = arm.b;
+    ao = mix(1.0, arm.r, float(enableAmbientOcclusion));
+    roughness = arm.g * roughnessFactor;
+    metalness = arm.b * metallicFactor;
 
     F0 = mix(vec3(0.04), albedo.rgb, metalness); // Interpolate based on metalness values (metal = 1.0)
 
@@ -267,6 +269,11 @@ void main(void)
     vec3 ambient = (kD * diffuse + specular) * ao; 
 
     vec3 color = ambient + PBR_point(); 
+
+    /* Could only detect transperancy with assimp using transmission property */
+    float transparency = albedo.a;
+    float reflectionStrenght = max(max(F.r, F.g), F.b);
+    transparency = mix(transparency, 1.0, reflectionStrenght);
    
-    FragmentColor = vec4(color, albedo.a);
+    FragmentColor = vec4(color, transparency);
 }

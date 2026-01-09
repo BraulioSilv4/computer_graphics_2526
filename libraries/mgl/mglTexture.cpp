@@ -72,3 +72,4 @@ void Texture::bind(GLenum textureUnit) {
 	glActiveTexture(textureUnit);
 	glBindTexture(textureTarget, textureObject);
 }
+

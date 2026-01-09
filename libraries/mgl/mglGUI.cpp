@@ -22,6 +22,7 @@ namespace mgl {
 			ImGui::Begin("MGL GUI", &state.showWindow);
 			ImGui::Text("Graphics Settings");
 			ImGui::Checkbox("Enable Normal-Mapping", &state.enableNormalMapping);
+			ImGui::Checkbox("Enable Ambient Occlusion", &state.enableAmbientOcclusion);
 			ImGui::InputFloat("Gamma", &state.gamma, 0.1, 1.0, "%.2f");
 			ImGui::InputFloat("Exposure", &state.exposure, 0.1, 1.0, "%.2f");
 
@@ -64,5 +65,12 @@ namespace mgl {
 
 	void GUI::enableWindow(bool enable) {
 		this->state.showWindow = enable;
+	}
+
+	bool GUI::guiWantsKeyboard() const {
+		return io.WantCaptureKeyboard;
+	}
+	bool GUI::guiWantsMouse() const {
+		return io.WantCaptureMouse;
 	}
 }

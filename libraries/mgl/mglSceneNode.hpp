@@ -66,10 +66,10 @@ namespace mgl {
 
         ~SceneNode();
 
-        void drawNodeMesh();
+        void drawNodeMesh(bool opaquePass = true);
 
         // when root parent is world (world = eye * local)
-        void drawSceneGraph(const glm::mat4& parentTransform = glm::mat4(1.0f));
+        void drawSceneGraph(const glm::mat4& parentTransform = glm::mat4(1.0f), bool opaquePass = true);
 
 		/* Child Management Methods */
         void addChild(std::unique_ptr<SceneNode> child);

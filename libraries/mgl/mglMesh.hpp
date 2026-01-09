@@ -21,6 +21,7 @@
 #include "mglInstanceManager.hpp"
 #include "mglTexture.hpp"
 #include "mglMaterial.hpp"
+#include <mglShader.hpp>
 
 namespace mgl {
 
@@ -56,10 +57,11 @@ public:
   void generateSmoothNormals();
   void generateTexcoords();
   void calculateTangentSpace();
+  void preTransformVertices();
   void flipUVs();
 
   void create(const std::string &filename);
-  void draw() override;
+  void draw(ShaderProgram* shader = nullptr, bool bindMaterials = true, bool opaquePass = true) override;
 
   bool hasNormals();
   bool hasTexcoords();
@@ -71,7 +73,7 @@ private:
   GLuint VaoId;
   unsigned int AssimpFlags;
   bool NormalsLoaded, TexcoordsLoaded, TangentsAndBitangentsLoaded;
-  GLuint baseColorTexture;
+  GLuint defaultAlbedoTexture, defaultNormalTexture, defaultARMTexture;
 
   struct MeshData {
     unsigned int nIndices = 0;
@@ -126,8 +128,11 @@ private:
   void loadMaterialParameters(const aiMaterial* material, int materialIdx);
   void bindMaterialsTextures(int materialIdx);
 
-  void loadDefaultTextures(glm::vec4* baseColor);
-  void bindBaseColorTexture(GLenum textureUnit);
+  void loadDefaultTextures();
+  void bindDefaultAlbedoTexture();
+  void bindDefaultNormalTexture();
+  void bindDefaultARMTexture();
+  void updateUniforms(int materialIdx, ShaderProgram* shader);
 
   void createBufferObjects();
   void destroyBufferObjects();

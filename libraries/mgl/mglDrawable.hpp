@@ -11,13 +11,14 @@
 
 namespace mgl {
 
+class ShaderProgram;
 class IDrawable;
 
 ////////////////////////////////////////////////////////////////////// IDrawable
 
 class IDrawable {
 public:
-  virtual void draw(void) = 0;
+  virtual void draw(ShaderProgram* shader = nullptr, bool bindMaterials = true, bool opaquePass = true) = 0;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

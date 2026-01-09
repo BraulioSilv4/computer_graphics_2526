@@ -46,6 +46,10 @@ void Mesh::calculateTangentSpace() {
 
 void Mesh::flipUVs() { AssimpFlags |= aiProcess_FlipUVs; }
 
+void Mesh::preTransformVertices() {
+	AssimpFlags |= aiProcess_PreTransformVertices;
+}
+
 bool Mesh::hasNormals() { return NormalsLoaded; }
 
 bool Mesh::hasTexcoords() { return TexcoordsLoaded; }
@@ -303,11 +307,30 @@ void Mesh::loadARMTexFromFile(const std::string& directory, const aiString& path
 }
 
 void Mesh::loadMaterialParameters(const aiMaterial* material, int idx) {
+    int twoSided = 0;
+    if (material->Get(AI_MATKEY_TWOSIDED, twoSided) == AI_SUCCESS) {
+        Materials[idx].matProps.isDoubleSided= (twoSided != 0);
+        if (Materials[idx].matProps.isDoubleSided) {
+            std::cout << Materials[idx].name << " is Double Sided" << std::endl;
+        }
+    }
+
     aiColor4D color;
     if (material->Get(AI_MATKEY_BASE_COLOR, color) == AI_SUCCESS) {
 		std::cout << Materials[idx].name << " BaseColor " << color.r << " " << color.g << " " << color.b << " " << color.a << std::endl;
 		Materials[idx].matProps.baseColor = new glm::vec4(color.r, color.g, color.b, color.a);
 		Materials[idx].matProps.hasBaseColor = true;
+    }
+
+    float transmission = 0.0f;
+    if (material->Get("$mat.transmission.factor", 0, 0, transmission) == AI_SUCCESS) {
+		std::cout << Materials[idx].name << " Transmission Factor: " << transmission << std::endl;
+        if (transmission > 0.0f) {
+			Materials[idx].matProps.isOpaque = false;
+            if (Materials[idx].matProps.hasBaseColor && !Materials[idx].matTex.texAlbedo) {
+                Materials[idx].matProps.baseColor->a *= (1.0f - transmission);
+            }
+        }
     }
 
     if (material->Get(AI_MATKEY_METALLIC_FACTOR, Materials[idx].matProps.metallic) == AI_SUCCESS) {
@@ -318,17 +341,6 @@ void Mesh::loadMaterialParameters(const aiMaterial* material, int idx) {
         std::cout << Materials[idx].name << " Pr " << Materials[idx].matProps.roughness << std::endl;
     }
 
-    if (material->Get(AI_MATKEY_SHEEN_COLOR_FACTOR, Materials[idx].matProps.sheen) == AI_SUCCESS) {
-        std::cout << Materials[idx].name << " Ps " << Materials[idx].matProps.sheen << std::endl;
-    }
-
-    if (material->Get(AI_MATKEY_CLEARCOAT_FACTOR, Materials[idx].matProps.clearcoat) == AI_SUCCESS) {
-        std::cout << Materials[idx].name << " Pc " << Materials[idx].matProps.clearcoat << std::endl;
-    }
-
-    if (material->Get(AI_MATKEY_CLEARCOAT_ROUGHNESS_FACTOR, Materials[idx].matProps.clearcoatRoughness) == AI_SUCCESS) {
-        std::cout << Materials[idx].name << " Pcr " << Materials[idx].matProps.clearcoatRoughness<< std::endl;
-    }
 }
 
 void Mesh::create(const std::string &filename) {
@@ -349,23 +361,79 @@ void Mesh::create(const std::string &filename) {
 
     id = filename;
     processScene(scene);
+	loadDefaultTextures();
     loadMaterials(scene, filename);
     createBufferObjects();
 }
 
-void Mesh::bindBaseColorTexture(GLenum textureUnit) {
-    glActiveTexture(textureUnit);
-    glBindTexture(GL_TEXTURE_2D, baseColorTexture);
-}
-
-void Mesh::loadDefaultTextures(glm::vec4* baseColor) {
-    glGenTextures(1, &baseColorTexture);
-    glBindTexture(GL_TEXTURE_2D, baseColorTexture);
-    unsigned char baseColorVal[4] = { baseColor->r, baseColor->g, baseColor->b, baseColor->a };
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, baseColorVal);
+void Mesh::loadDefaultTextures() {
+    glGenTextures(1, &defaultAlbedoTexture);
+    glBindTexture(GL_TEXTURE_2D, defaultAlbedoTexture);
+    unsigned char white[4] = { 255, 255, 255, 255 };
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, white);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
+
+    glGenTextures(1, &defaultNormalTexture);
+    glBindTexture(GL_TEXTURE_2D, defaultNormalTexture);
+    unsigned char normals[4] = { 128, 128, 255, 255 };
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, normals);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glGenTextures(1, &defaultARMTexture);
+    glBindTexture(GL_TEXTURE_2D, defaultARMTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, white);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void Mesh::bindDefaultAlbedoTexture() {
+    glActiveTexture(ALBEDO_TEXTURE_UNIT);
+    glBindTexture(GL_TEXTURE_2D, defaultAlbedoTexture);
+}
+
+void Mesh::bindDefaultNormalTexture() {
+    glActiveTexture(NORMAL_TEXTURE_UNIT);
+    glBindTexture(GL_TEXTURE_2D, defaultNormalTexture);
+}
+
+void Mesh::bindDefaultARMTexture() {
+    glActiveTexture(ARM_TEXTURE_UNIT);
+    glBindTexture(GL_TEXTURE_2D, defaultARMTexture);
+}
+
+void Mesh::updateUniforms(int materialIdx, ShaderProgram* shader) {
+    if (!shader) {
+        return;
+    }
+
+    const Material& material = Materials[materialIdx];
+
+    if (material.matProps.hasBaseColor && shader->isUniform(mgl::BASE_COLOR)) {
+        glUniform4fv(
+            shader->Uniforms[mgl::BASE_COLOR].index,
+            1,
+            glm::value_ptr(*material.matProps.baseColor)
+        );
+    }
+
+    if (shader->isUniform(mgl::METALLIC_FACTOR)) {
+        glUniform1f(
+            shader->Uniforms[mgl::METALLIC_FACTOR].index,
+            material.matProps.metallic
+        );
+    }
+
+    if (shader->isUniform(mgl::ROUGHNESS_FACTOR)) {
+        glUniform1f(
+            shader->Uniforms[mgl::ROUGHNESS_FACTOR].index,
+            material.matProps.roughness
+        );
+    }
 }
 
 void Mesh::createBufferObjects() {
@@ -441,43 +509,89 @@ void Mesh::destroyBufferObjects() {
 void Mesh::bindMaterialsTextures(int materialIdx) {
     if (Materials[materialIdx].matTex.texAlbedo) {
         Materials[materialIdx].matTex.texAlbedo->bind(ALBEDO_TEXTURE_UNIT); /* Albedo to texture0_unit */
-    }
-
-    if (Materials[materialIdx].matProps.hasBaseColor && !Materials[materialIdx].matTex.texAlbedo) {
-        loadDefaultTextures(Materials[materialIdx].matProps.baseColor);
-        bindBaseColorTexture(ALBEDO_TEXTURE_UNIT);
+    } else {
+		bindDefaultAlbedoTexture();
     }
 
     if (Materials[materialIdx].matTex.texNormalMap) {
         Materials[materialIdx].matTex.texNormalMap->bind(NORMAL_TEXTURE_UNIT); /* Normal map to texture2_unit */
-    }
+    } else if (!Materials[materialIdx].matTex.texNormalMap) {
+        bindDefaultNormalTexture();
+	}
 
 
     if (Materials[materialIdx].matTex.texARM) {
         Materials[materialIdx].matTex.texARM->bind(ARM_TEXTURE_UNIT); /* gltf special texture (ao, rough, metal) */
+    } else if (!Materials[materialIdx].matTex.texARM) {
+        bindDefaultARMTexture();
     }
-
-
 }
 
-void Mesh::draw() {
+void Mesh::draw(ShaderProgram* shader, bool bindMaterials, bool opaquePass) {
     glBindVertexArray(VaoId);
 
-    for (MeshData &mesh : Meshes) {
-        unsigned int materialIndex = mesh.materialIndex;
+    if (opaquePass) {
+        glDisable(GL_BLEND);
+	    glDepthMask(GL_TRUE);
 
-        bindMaterialsTextures(materialIndex);
+        for (MeshData &mesh : Meshes) {
+            if (Materials[mesh.materialIndex].matProps.isOpaque) {
+                unsigned int materialIndex = mesh.materialIndex;
 
-        glDrawElementsBaseVertex(
-            GL_TRIANGLES, 
-            mesh.nIndices, 
-            GL_UNSIGNED_INT,
-            reinterpret_cast<void *>((sizeof(unsigned int) * mesh.baseIndex)),
-            mesh.baseVertex
-        );
-        // GLenum mode, GLsizei count, GLenum type, void *indices, GLint basevertex
+                if (bindMaterials) {
+                    bindMaterialsTextures(materialIndex);
+			        updateUniforms(materialIndex, shader);
+
+                    if (Materials[materialIndex].matProps.isDoubleSided) {
+                        glDisable(GL_CULL_FACE);
+                    }
+                    else {
+                        glEnable(GL_CULL_FACE);
+                    }
+                }
+
+                glDrawElementsBaseVertex(
+                    GL_TRIANGLES,
+                    mesh.nIndices,
+                    GL_UNSIGNED_INT,
+                    reinterpret_cast<void*>((sizeof(unsigned int) * mesh.baseIndex)),
+                    mesh.baseVertex
+                );
+            }
+        }
     }
-  
+    else {
+	    glEnable(GL_BLEND);
+	    glDepthMask(GL_FALSE);
+
+        for (MeshData& mesh : Meshes) {
+            if (!Materials[mesh.materialIndex].matProps.isOpaque) {
+                unsigned int materialIndex = mesh.materialIndex;
+
+                if (bindMaterials) {
+                    bindMaterialsTextures(materialIndex);
+                    updateUniforms(materialIndex, shader);
+
+                    if (Materials[materialIndex].matProps.isDoubleSided) {
+                        glDisable(GL_CULL_FACE);
+                    }
+                    else {
+                        glEnable(GL_CULL_FACE);
+                    }
+                }
+
+                glDrawElementsBaseVertex(
+                    GL_TRIANGLES,
+                    mesh.nIndices,
+                    GL_UNSIGNED_INT,
+                    reinterpret_cast<void*>((sizeof(unsigned int) * mesh.baseIndex)),
+                    mesh.baseVertex
+                );
+            }
+        }
+        glDepthMask(GL_TRUE);
+    }
+
     glBindVertexArray(0);
 }
 

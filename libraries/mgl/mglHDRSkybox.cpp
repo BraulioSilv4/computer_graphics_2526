@@ -30,7 +30,7 @@ HDRSkybox::~HDRSkybox() {
 	}
 }
 
-void HDRSkybox::equiToCubemap(unsigned int cubemapSize, unsigned int irradianceSize, unsigned int specBaseMip) {
+void HDRSkybox::prepareIBL(unsigned int cubemapSize, unsigned int irradianceSize, unsigned int specBaseMip) {
 	if (!hdriTexture || !bakeShader) {
 		std::cout << "HDRI texture or shader program not set." << std::endl;
 		return;
@@ -106,7 +106,7 @@ void HDRSkybox::equiToCubemap(unsigned int cubemapSize, unsigned int irradianceS
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		unitCube->draw();
+		unitCube->draw(nullptr, false);
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -156,7 +156,7 @@ void HDRSkybox::equiToCubemap(unsigned int cubemapSize, unsigned int irradianceS
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		unitCube->draw();
+		unitCube->draw(nullptr, false);
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -209,7 +209,7 @@ void HDRSkybox::equiToCubemap(unsigned int cubemapSize, unsigned int irradianceS
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			unitCube->draw();
+			unitCube->draw(nullptr, false);
 		}
 	}
 
@@ -344,7 +344,7 @@ bool HDRSkybox::init() {
 
 	initQuad();
 
-	equiToCubemap(512, 32, 128);
+	prepareIBL(512, 32, 128);
 
 	return true;
 }
@@ -411,9 +411,6 @@ void HDRSkybox::render(const mgl::Camera& camera) {
 
 	shaderProgram->bind();
 
-	glActiveTexture(mgl::CUBEMAP_TEXTURE_UNIT);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, prefilterMap);
-
 	hdriTexture->bind(mgl::EQUIRECTANGULAR_TEXTURE_UNIT);
 
 	glm::mat4 view = glm::mat4(glm::mat3(camera.getViewMatrix()));
@@ -431,7 +428,7 @@ void HDRSkybox::render(const mgl::Camera& camera) {
 		glm::value_ptr(projection)
 	);
 
-	unitCube->draw();
+	unitCube->draw(nullptr, false);
 
 	hdriTexture->unbind();
 

@@ -63,7 +63,6 @@ void SkyBox::render(const mgl::Camera& camera) {
 
 	shaderProgram->bind();
 	
-	// Remove translation from view matrix for skybox
 	glm::mat4 view = glm::mat4(glm::mat3(camera.getViewMatrix()));
 	glm::mat4 projection = camera.getProjectionMatrix();
 

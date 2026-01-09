@@ -6,19 +6,19 @@ namespace mgl {
 
 	SceneNode::~SceneNode() {}
 
-	void SceneNode::drawNodeMesh() {
+	void SceneNode::drawNodeMesh(bool opaquePass) {
 		this->preDrawCallback(this);
 
 		ShaderProgram* shaderProgram = SceneNode::getShaderProgram();
 		if(shaderProgram) {
 			shaderProgram->bind();
 
-			///* Setting model matrix based on current node data plus parent transformation */
+			/* Setting model matrix based on current node data plus parent transformation */
 			GLint modelMatrixLocation = glGetUniformLocation(shaderProgram->ProgramId, MODEL_MATRIX);
 			glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, glm::value_ptr(worldTransform));
 
-			/* Drawing object */
-			mesh->draw();
+			/* Drawing object - current shader to update mat prop uniforms, enable material binding, define opaque or transparent mesh pass*/
+			mesh->draw(shaderProgram, true, opaquePass);
 
 			shaderProgram->unbind();
 		}
@@ -26,11 +26,11 @@ namespace mgl {
 		this->postDrawCallback(this);
 	}
 
-	void SceneNode::drawSceneGraph(const glm::mat4& parentTransform) {
+	void SceneNode::drawSceneGraph(const glm::mat4& parentTransform, bool opaquePass) {
 		// Model Matrix
 		worldTransform = parentTransform * localTransform;
 
-		this->drawNodeMesh();
+		this->drawNodeMesh(opaquePass);
 
 		for (const auto& child : this->children) {
 			child->drawSceneGraph(worldTransform);
@@ -41,8 +41,6 @@ namespace mgl {
 		child->parent = this;
 		children.push_back(std::move(child));
 	}
-
-
 
 	/* Relative Transformation Methods.
 	* These methods change the node relative to its current values.

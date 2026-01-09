@@ -8,13 +8,12 @@
 class Material {
 public:
 	struct Properties {
-		glm::vec4* baseColor = nullptr;
+		glm::vec4* baseColor = new glm::vec4(1.0, 1.0, 1.0, 1.0);
 		bool hasBaseColor = false; 
-		float metallic = 0.0f; // Pm
-		float roughness = 0.0f; // Pr
-		float sheen = 0.0f; // Ps
-		float clearcoat = 0.0f; // Pc
-		float clearcoatRoughness = 0.0f; // Pcr
+		bool isOpaque = true;
+		bool isDoubleSided = false;
+		float metallic = 1.0f; // Pm
+		float roughness = 1.0f; // Pr
 	};
 
 	struct Textures {
@@ -27,6 +26,7 @@ public:
 
 	std::string name;
 
+	GLuint baseColorTexture;
 	glm::vec3 color = glm::vec3(0.0f, 0.0f, 0.0f);
 	Properties matProps;
 	Textures matTex;

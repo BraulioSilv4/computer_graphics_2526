@@ -25,7 +25,7 @@ public:
 	
 	void render(const mgl::Camera& camera);
 
-	void equiToCubemap(
+	void prepareIBL(
 		unsigned int cubemapSize = 512, 
 		unsigned int irradianceSize = 32, 
 		unsigned int specBaseMip = 128

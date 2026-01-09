@@ -54,6 +54,8 @@ private:
   /* Textures */ 
   HDRSkybox* hdrSkybox = nullptr;
 
+  const std::string modelPath = "..\\assets\\models\\Camera\\Camera_01_4k.gltf";
+
   void createCamera();
   void createMeshes();
   void createSceneGraph();
@@ -62,13 +64,13 @@ private:
   void createGUI();
 
   void updateUnifroms();
-  void drawScene(double elapsed);
+  void drawScene(double elapsed, bool opaquePass);
 };
 
 ///////////////////////////////////////////////////////////////////////// MESHES
 
 void MyApp::createMeshes() {
-    std::string mesh_path = "..\\assets\\models\\props\\Camera_01_4k.gltf";
+    std::string mesh_path = modelPath;
     mgl::Mesh* m = new mgl::Mesh();
     m->generateSmoothNormals();
     m->calculateTangentSpace();
@@ -77,7 +79,7 @@ void MyApp::createMeshes() {
 
     MeshManager.add(std::unique_ptr<mgl::Mesh>(m));
 
-	hdrSkybox = new HDRSkybox("..\\assets\\HDR\\canary_wharf_4k.hdr", nullptr);
+	hdrSkybox = new HDRSkybox("..\\assets\\HDR\\belfast_sunset_puresky_4k.hdr", nullptr);
 }
 
 ///////////////////////////////////////////////////////////////////////// SHADER
@@ -89,7 +91,6 @@ void MyApp::createShaderPrograms() {
 
     SkyboxShaders->addAttribute(mgl::POSITION_ATTRIBUTE, mgl::Mesh::POSITION);
     SkyboxShaders->addUniform(mgl::EQUIRECTANGULAR_SAMPLER);
-    SkyboxShaders->addUniform(mgl::CUBEMAP_SAMPLER);
     SkyboxShaders->addUniform(mgl::PROJECTION_MATRIX);
     SkyboxShaders->addUniform(mgl::VIEW_MATRIX);
 
@@ -104,68 +105,65 @@ void MyApp::createShaderPrograms() {
     hdrSkybox->init(); // loads the HDRI texture and creates the cubemap
 
 
-  Shaders = new mgl::ShaderProgram();
-  Shaders->addShader(GL_VERTEX_SHADER, "cube-vs.glsl");
-  Shaders->addShader(GL_FRAGMENT_SHADER, "pbr-fs.glsl");
+    Shaders = new mgl::ShaderProgram();
+    Shaders->addShader(GL_VERTEX_SHADER, "cube-vs.glsl");
+    Shaders->addShader(GL_FRAGMENT_SHADER, "pbr-fs.glsl");
 
-  Shaders->addAttribute(mgl::POSITION_ATTRIBUTE, mgl::Mesh::POSITION);
-  if (MeshManager.get("..\\assets\\models\\props\\Camera_01_4k.gltf")->hasNormals()) {
-    Shaders->addAttribute(mgl::NORMAL_ATTRIBUTE, mgl::Mesh::NORMAL);
-  }
-  if (MeshManager.get("..\\assets\\models\\props\\Camera_01_4k.gltf")->hasTexcoords()) {
-    Shaders->addAttribute(mgl::TEXCOORD_ATTRIBUTE, mgl::Mesh::TEXCOORD);
-  }
-  if (MeshManager.get("..\\assets\\models\\props\\Camera_01_4k.gltf")->hasTangentsAndBitangents()) {
-    Shaders->addAttribute(mgl::TANGENT_ATTRIBUTE, mgl::Mesh::TANGENT);
-  }
+    Shaders->addAttribute(mgl::POSITION_ATTRIBUTE, mgl::Mesh::POSITION);
+    if (MeshManager.get(modelPath)->hasNormals()) {
+        Shaders->addAttribute(mgl::NORMAL_ATTRIBUTE, mgl::Mesh::NORMAL);
+    }
+    if (MeshManager.get(modelPath)->hasTexcoords()) {
+        Shaders->addAttribute(mgl::TEXCOORD_ATTRIBUTE, mgl::Mesh::TEXCOORD);
+    }
+    if (MeshManager.get(modelPath)->hasTangentsAndBitangents()) {
+        Shaders->addAttribute(mgl::TANGENT_ATTRIBUTE, mgl::Mesh::TANGENT);
+    }
 
-  Shaders->addUniform(mgl::DIFFUSE_SAMPLER);
-  Shaders->addUniform(mgl::NORMAL_SAMPLER);
-  Shaders->addUniform(mgl::METAL_SAMPLER);
-  Shaders->addUniform(mgl::ROUGH_SAMPLER);
-  Shaders->addUniform(mgl::CUBEMAP_SAMPLER);
-  Shaders->addUniform(mgl::ARM_SAMPLER);
-  Shaders->addUniform(mgl::IRRADIANCE_SAMPLER);
-  Shaders->addUniform(mgl::PREFILTERED_ENV_SAMPLER);
-  Shaders->addUniform(mgl::BRDDF_LUT_SAMPLER);
+    Shaders->addUniform(mgl::DIFFUSE_SAMPLER);
+    Shaders->addUniform(mgl::NORMAL_SAMPLER);
+    Shaders->addUniform(mgl::ARM_SAMPLER);
+    Shaders->addUniform(mgl::BASE_COLOR);
+    Shaders->addUniform(mgl::ROUGHNESS_FACTOR);
+    Shaders->addUniform(mgl::METALLIC_FACTOR);
+    Shaders->addUniform(mgl::IRRADIANCE_SAMPLER);
+    Shaders->addUniform(mgl::PREFILTERED_ENV_SAMPLER);
+    Shaders->addUniform(mgl::BRDDF_LUT_SAMPLER);
+	Shaders->addUniform(mgl::ENABLE_AMBIENT_OCCLUSION);
 
-  Shaders->addUniform(mgl::ENABLE_NORMAL_MAPPING);
+    Shaders->addUniform(mgl::ENABLE_NORMAL_MAPPING);
 
-  Shaders->addUniform(mgl::MODEL_MATRIX);
-  Shaders->addUniform(mgl::CAMERA_POSITION);
-  Shaders->addUniformBlock(mgl::CAMERA_BLOCK, UBO_BP);
-  Shaders->create();
+    Shaders->addUniform(mgl::MODEL_MATRIX);
+    Shaders->addUniform(mgl::CAMERA_POSITION);
+    Shaders->addUniformBlock(mgl::CAMERA_BLOCK, UBO_BP);
+    Shaders->create();
 
-  /* Assigning texture units to samplers */
-  Shaders->bind();
-  glUniform1i(Shaders->Uniforms[mgl::DIFFUSE_SAMPLER].index, mgl::ALBEDO_UNIT_INDEX);
-  glUniform1i(Shaders->Uniforms[mgl::ARM_SAMPLER].index, mgl::ARM_UNIT_INDEX);
-  glUniform1i(Shaders->Uniforms[mgl::NORMAL_SAMPLER].index, mgl::NORMAL_UNIT_INDEX);
-  glUniform1i(Shaders->Uniforms[mgl::ROUGH_SAMPLER].index, mgl::ROUGHNESS_UNIT_INDEX);
-  glUniform1i(Shaders->Uniforms[mgl::METAL_SAMPLER].index, mgl::METALLIC_UNIT_INDEX);
-  glUniform1i(Shaders->Uniforms[mgl::NORMAL_SAMPLER].index, mgl::NORMAL_UNIT_INDEX);
-  glUniform1i(Shaders->Uniforms[mgl::CUBEMAP_SAMPLER].index, mgl::CUBEMAP_UNIT_INDEX);
+    /* Assigning texture units to samplers */
+    Shaders->bind();
+    glUniform1i(Shaders->Uniforms[mgl::DIFFUSE_SAMPLER].index, mgl::ALBEDO_UNIT_INDEX);
+    glUniform1i(Shaders->Uniforms[mgl::ARM_SAMPLER].index, mgl::ARM_UNIT_INDEX);
+    glUniform1i(Shaders->Uniforms[mgl::NORMAL_SAMPLER].index, mgl::NORMAL_UNIT_INDEX);
 
-  hdrSkybox->bindIrradianceMap(mgl::IRRADIANCE_TEXTURE_UNIT);
-  hdrSkybox->bindBRDFLUTTexture(mgl::BRDDF_LUT_TEXTURE_UNIT);
-  hdrSkybox->bindPrefilteredEnvMap(mgl::PREFILTERED_ENV_TEXTURE_UNIT);
-  glUniform1i(Shaders->Uniforms[mgl::IRRADIANCE_SAMPLER].index, mgl::IRRADIANCE_UNIT_INDEX);
-  glUniform1i(Shaders->Uniforms[mgl::BRDDF_LUT_SAMPLER].index, mgl::BRDDF_LUT_UNIT_INDEX);
-  glUniform1i(Shaders->Uniforms[mgl::PREFILTERED_ENV_SAMPLER].index, mgl::PREFILTERED_ENV_UNIT_INDEX);
+    hdrSkybox->bindIrradianceMap(mgl::IRRADIANCE_TEXTURE_UNIT);
+    hdrSkybox->bindBRDFLUTTexture(mgl::BRDDF_LUT_TEXTURE_UNIT);
+    hdrSkybox->bindPrefilteredEnvMap(mgl::PREFILTERED_ENV_TEXTURE_UNIT);
+    glUniform1i(Shaders->Uniforms[mgl::IRRADIANCE_SAMPLER].index, mgl::IRRADIANCE_UNIT_INDEX);
+    glUniform1i(Shaders->Uniforms[mgl::BRDDF_LUT_SAMPLER].index, mgl::BRDDF_LUT_UNIT_INDEX);
+    glUniform1i(Shaders->Uniforms[mgl::PREFILTERED_ENV_SAMPLER].index, mgl::PREFILTERED_ENV_UNIT_INDEX);
  
-  Shaders->unbind();
+    Shaders->unbind();
 
-  ModelMatrixId = Shaders->Uniforms[mgl::MODEL_MATRIX].index;
+    ModelMatrixId = Shaders->Uniforms[mgl::MODEL_MATRIX].index;
 }
 
 ///////////////////////////////////////////////////////////////////////// SCENE GRAPH
 
 void MyApp::createSceneGraph() {
-    std::string rootName = "cube_with_materials.obj";
+    std::string rootName = "model";
 
     auto root = std::make_unique<mgl::SceneNode>(
         rootName,
-        MeshManager.get("..\\assets\\models\\props\\Camera_01_4k.gltf"),
+        MeshManager.get(modelPath),
         Shaders
     );
 
@@ -228,14 +226,21 @@ void MyApp::createGUI() {
 
 /////////////////////////////////////////////////////////////////////////// DRAW
 
-void MyApp::drawScene(double elapsed) {
+void MyApp::drawScene(double elapsed, bool opaquePass) {
     Shaders->bind();
+
+    hdrSkybox->bindIrradianceMap(mgl::IRRADIANCE_TEXTURE_UNIT);
+    hdrSkybox->bindBRDFLUTTexture(mgl::BRDDF_LUT_TEXTURE_UNIT);
+    hdrSkybox->bindPrefilteredEnvMap(mgl::PREFILTERED_ENV_TEXTURE_UNIT);
+    glUniform1i(Shaders->Uniforms[mgl::IRRADIANCE_SAMPLER].index, mgl::IRRADIANCE_UNIT_INDEX);
+    glUniform1i(Shaders->Uniforms[mgl::PREFILTERED_ENV_SAMPLER].index, mgl::PREFILTERED_ENV_UNIT_INDEX);
+    glUniform1i(Shaders->Uniforms[mgl::BRDDF_LUT_SAMPLER].index, mgl::BRDDF_LUT_UNIT_INDEX);
+
     /* Maybe change this to update the uniform inside OrbitCamera updateView function TODO() */
     glm::vec3 camPos = activeCamera->getPosition();
     glUniform3fv(Shaders->Uniforms[mgl::CAMERA_POSITION].index, 1, glm::value_ptr(camPos));
 
-    sceneRoot->drawSceneGraph();
-    sceneRoot->transformRotate(glm::radians(0.2f), glm::vec3(0.0f, 1.0f, 0.0f));
+    sceneRoot->drawSceneGraph(glm::mat4(1.0f), opaquePass);
 
     Shaders->unbind();
 }
@@ -250,6 +255,7 @@ void MyApp::updateUnifroms() {
 
 	Shaders->bind();
     glUniform1i(Shaders->Uniforms[mgl::ENABLE_NORMAL_MAPPING].index, gui->getState().enableNormalMapping);
+	glUniform1i(Shaders->Uniforms[mgl::ENABLE_AMBIENT_OCCLUSION].index, gui->getState().enableAmbientOcclusion);
 	Shaders->unbind();
 }
 
@@ -291,19 +297,16 @@ void MyApp::displayCallback(GLFWwindow* win, double elapsed) {
 	updateUnifroms();
 
     frameBuffer->bind();
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-    glEnable(GL_DEPTH_TEST);
+    drawScene(elapsed, true);
+
     SkyboxShaders->bind();
     hdrSkybox->render(*activeCamera->getCamera());
     SkyboxShaders->unbind();
 
-    glEnable(GL_BLEND);
+	drawScene(elapsed, false);
 
-    drawScene(elapsed);
-
-    glDisable(GL_BLEND);
     frameBuffer->unbind();
 
     frameBuffer->render();
@@ -312,6 +315,8 @@ void MyApp::displayCallback(GLFWwindow* win, double elapsed) {
 }
 
 void MyApp::cursorCallback(GLFWwindow* window, double xpos, double ypos) {
+    if (gui->guiWantsKeyboard() || gui->guiWantsMouse()) return;
+
     float dx = xpos - MouseInput.x;
     float dy = ypos - MouseInput.y;
     if (RightPressed) {
@@ -324,6 +329,8 @@ void MyApp::cursorCallback(GLFWwindow* window, double xpos, double ypos) {
 }
 
 void MyApp::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods, double elapsed) {
+    if (gui->guiWantsKeyboard() || gui->guiWantsMouse()) return;
+
     if (key == GLFW_KEY_P) {
         if (action == GLFW_PRESS) {
             ortho_mode = !ortho_mode;
@@ -332,11 +339,13 @@ void MyApp::keyCallback(GLFWwindow* window, int key, int scancode, int action, i
     }
 
     if (key == GLFW_KEY_O && action == GLFW_PRESS) {
-
+		gui->enableWindow(!gui->getState().showWindow);
     }
 }
 
 void MyApp::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+    if (gui->guiWantsKeyboard() || gui->guiWantsMouse()) return;
+
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
         if (action == GLFW_PRESS) {
             LeftPressed = true;
@@ -364,6 +373,7 @@ void MyApp::mouseButtonCallback(GLFWwindow* window, int button, int action, int 
 }
 
 void MyApp::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+    if (gui->guiWantsKeyboard() || gui->guiWantsMouse()) return;
     //xoffset parece ser inutil para o nosso projeto
     //aproximar/afastar do centro da camera
     activeCamera->zoom(yoffset);

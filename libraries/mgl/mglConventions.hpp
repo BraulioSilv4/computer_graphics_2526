@@ -13,8 +13,6 @@ namespace mgl {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-
-
 const char DIFFUSE_SAMPLER[] = "diffSampler";
 const char NORMAL_SAMPLER[] = "normalSampler";
 const char ROUGH_SAMPLER[] = "roughSampler";
@@ -40,9 +38,12 @@ const char CAMERA_POSITION[] = "CameraPosition";
 const char LIGHT_COLOR[] = "LightColor";
 const char LIGHT_POSITION[] = "LightPosition";
 const char CUBEMAP_RESOLUTION[] = "cubemapRes";
-const char ROUGHNESS[] = "roughness";
 const char GAMMA[] = "gamma";
 const char EXPOSURE[] = "exposure";
+const char ROUGHNESS[] = "roughness";
+const char ROUGHNESS_FACTOR[] = "roughnessFactor";
+const char METALLIC_FACTOR[] = "metallicFactor";
+const char BASE_COLOR[] = "baseColorFactor";
 
 const char POSITION_ATTRIBUTE[] = "inPosition";
 const char NORMAL_ATTRIBUTE[] = "inNormal";
@@ -52,15 +53,8 @@ const char BITANGENT_ATTRIBUTE[] = "inBitangent";
 const char COLOR_ATTRIBUTE[] = "inColor";
 
 const char ENABLE_NORMAL_MAPPING[] = "enableNormalMapping";
+const char ENABLE_AMBIENT_OCCLUSION[] = "enableAmbientOcclusion";
 
-constexpr unsigned int ENVIRONMENT_TEXTURE_UNIT = GL_TEXTURE0;
-constexpr unsigned int ENVIRONMENT_UNIT_INDEX = 0;
-
-constexpr unsigned int EQUIRECTANGULAR_TEXTURE_UNIT = GL_TEXTURE0;
-constexpr unsigned int EQUIRECTANGULAR_UNIT_INDEX = 0;
-
-constexpr unsigned int SCREEN_TEXTURE_UNIT = GL_TEXTURE0;
-constexpr unsigned int SCREEN_TEXTURE_UNIT_INDEX = 0;
 
 constexpr unsigned int ALBEDO_TEXTURE_UNIT = GL_TEXTURE0;
 constexpr unsigned int ALBEDO_UNIT_INDEX = 0;
@@ -92,6 +86,14 @@ constexpr unsigned int PREFILTERED_ENV_UNIT_INDEX = 8;
 constexpr unsigned int ARM_TEXTURE_UNIT = GL_TEXTURE9;
 constexpr unsigned int ARM_UNIT_INDEX = 9;
 
+constexpr unsigned int SCREEN_TEXTURE_UNIT = GL_TEXTURE10;
+constexpr unsigned int SCREEN_TEXTURE_UNIT_INDEX = 10;
+
+constexpr unsigned int EQUIRECTANGULAR_UNIT_INDEX = 11;
+constexpr unsigned int EQUIRECTANGULAR_TEXTURE_UNIT = GL_TEXTURE11;
+
+constexpr unsigned int ENVIRONMENT_TEXTURE_UNIT = GL_TEXTURE12;
+constexpr unsigned int ENVIRONMENT_UNIT_INDEX = 12;
 ////////////////////////////////////////////////////////////////////////////////
 } // namespace mgl
 

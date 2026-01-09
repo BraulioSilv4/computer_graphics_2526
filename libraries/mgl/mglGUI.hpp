@@ -8,6 +8,7 @@ namespace mgl {
 	struct GUIState {
 		bool showWindow = true;
 		bool enableNormalMapping = true;
+		bool enableAmbientOcclusion = true;
 		float gamma = 2.2f;
 		float exposure = 1.0f;
 	};
@@ -25,6 +26,8 @@ namespace mgl {
 		void enableKeyboardNavigationGUI(bool enable);
 		void processGlobalCallbacksGUI();
 		void processWindowCallbacksGUI();
+		bool guiWantsKeyboard() const;
+		bool guiWantsMouse() const;
 		GUIState getState() const;
 
 	private:
