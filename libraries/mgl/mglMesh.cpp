@@ -178,7 +178,6 @@ void Mesh::loadMaterials(const aiScene* scene, const std::string& filename) {
 
 void Mesh::loadTextures(const std::string& directory, const aiMaterial* material, int idx) {
     /* Currently only works with obj files */
-    loadDefaultTextures();
     loadAlbedoTex(directory, material, idx);
     loadNormalMapTex(directory, material, idx);
 
@@ -304,6 +303,13 @@ void Mesh::loadARMTexFromFile(const std::string& directory, const aiString& path
 }
 
 void Mesh::loadMaterialParameters(const aiMaterial* material, int idx) {
+    aiColor4D color;
+    if (material->Get(AI_MATKEY_BASE_COLOR, color) == AI_SUCCESS) {
+		std::cout << Materials[idx].name << " BaseColor " << color.r << " " << color.g << " " << color.b << " " << color.a << std::endl;
+		Materials[idx].matProps.baseColor = new glm::vec4(color.r, color.g, color.b, color.a);
+		Materials[idx].matProps.hasBaseColor = true;
+    }
+
     if (material->Get(AI_MATKEY_METALLIC_FACTOR, Materials[idx].matProps.metallic) == AI_SUCCESS) {
         std::cout << Materials[idx].name << " Pm " << Materials[idx].matProps.metallic << std::endl;
     }
@@ -347,29 +353,16 @@ void Mesh::create(const std::string &filename) {
     createBufferObjects();
 }
 
-void Mesh::bindDefaultAlbedoTexture() {
-    glActiveTexture(ALBEDO_TEXTURE_UNIT);
-    glBindTexture(GL_TEXTURE_2D, defaultTexture);
+void Mesh::bindBaseColorTexture(GLenum textureUnit) {
+    glActiveTexture(textureUnit);
+    glBindTexture(GL_TEXTURE_2D, baseColorTexture);
 }
 
-void Mesh::bindDefaultNormalTexture() {
-    glActiveTexture(NORMAL_TEXTURE_UNIT);
-    glBindTexture(GL_TEXTURE_2D, defaultNormalsTexture);
-}
-
-void Mesh::loadDefaultTextures() {
-    glGenTextures(1, &defaultTexture);
-    glBindTexture(GL_TEXTURE_2D, defaultTexture);
-    unsigned char white[4] = { 255, 255, 255, 255 };
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, white);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    glGenTextures(1, &defaultNormalsTexture);
-    glBindTexture(GL_TEXTURE_2D, defaultNormalsTexture);
-    unsigned char normals[3] = { 128, 128, 255};
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1, 1, 0, GL_RGB, GL_UNSIGNED_BYTE, normals);
+void Mesh::loadDefaultTextures(glm::vec4* baseColor) {
+    glGenTextures(1, &baseColorTexture);
+    glBindTexture(GL_TEXTURE_2D, baseColorTexture);
+    unsigned char baseColorVal[4] = { baseColor->r, baseColor->g, baseColor->b, baseColor->a };
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, baseColorVal);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -449,20 +442,22 @@ void Mesh::bindMaterialsTextures(int materialIdx) {
     if (Materials[materialIdx].matTex.texAlbedo) {
         Materials[materialIdx].matTex.texAlbedo->bind(ALBEDO_TEXTURE_UNIT); /* Albedo to texture0_unit */
     }
-    else {
-        //bindDefaultAlbedoTexture();
+
+    if (Materials[materialIdx].matProps.hasBaseColor && !Materials[materialIdx].matTex.texAlbedo) {
+        loadDefaultTextures(Materials[materialIdx].matProps.baseColor);
+        bindBaseColorTexture(ALBEDO_TEXTURE_UNIT);
     }
 
     if (Materials[materialIdx].matTex.texNormalMap) {
         Materials[materialIdx].matTex.texNormalMap->bind(NORMAL_TEXTURE_UNIT); /* Normal map to texture2_unit */
     }
-    else {
-        //bindDefaultNormalTexture();
-    }
+
 
     if (Materials[materialIdx].matTex.texARM) {
         Materials[materialIdx].matTex.texARM->bind(ARM_TEXTURE_UNIT); /* gltf special texture (ao, rough, metal) */
     }
+
+
 }
 
 void Mesh::draw() {

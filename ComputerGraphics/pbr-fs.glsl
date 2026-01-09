@@ -244,9 +244,6 @@ void main(void)
     roughness = arm.g;
     metalness = arm.b;
 
-    FragmentColor = vec4(albedo.rgb, 1.0);
-    return;
-
     F0 = mix(vec3(0.04), albedo.rgb, metalness); // Interpolate based on metalness values (metal = 1.0)
 
     // PBR Vectors

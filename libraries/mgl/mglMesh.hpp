@@ -71,7 +71,7 @@ private:
   GLuint VaoId;
   unsigned int AssimpFlags;
   bool NormalsLoaded, TexcoordsLoaded, TangentsAndBitangentsLoaded;
-  GLuint defaultTexture, defaultNormalsTexture;
+  GLuint baseColorTexture;
 
   struct MeshData {
     unsigned int nIndices = 0;
@@ -126,9 +126,8 @@ private:
   void loadMaterialParameters(const aiMaterial* material, int materialIdx);
   void bindMaterialsTextures(int materialIdx);
 
-  void loadDefaultTextures();
-  void bindDefaultAlbedoTexture();
-  void bindDefaultNormalTexture();
+  void loadDefaultTextures(glm::vec4* baseColor);
+  void bindBaseColorTexture(GLenum textureUnit);
 
   void createBufferObjects();
   void destroyBufferObjects();

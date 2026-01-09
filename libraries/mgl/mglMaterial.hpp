@@ -8,6 +8,8 @@
 class Material {
 public:
 	struct Properties {
+		glm::vec4* baseColor = nullptr;
+		bool hasBaseColor = false; 
 		float metallic = 0.0f; // Pm
 		float roughness = 0.0f; // Pr
 		float sheen = 0.0f; // Ps
